@@ -9,165 +9,197 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 });
 
-// verbruikerstypes uit Analyse.pdf AA1:AA21
-const verbruikerTypes = [
-  "Airco", "Boiler", "Droogkast", "Warmtepomp", "Lichten", "Verwarming", "Oven", "Magnetron"
+// Verbruikerscategorieën
+const verbruikersTypes = [
+  "Airco", "Boiler", "Droogkast", "Warmtepomp",
+  "Lichten", "Verwarming", "Oven", "Magnetron"
 ];
 
-// toon/verberg dynamisch de secties
+// Toon/verberg configuratie-secties
 [
   { toggle: "hasSolar", section: "solarSection", details: "solarDetails" },
   { toggle: "hasEV", section: "evSection", details: "evDetails" },
   { toggle: "hasLoads", section: "loadSection", details: "loadDetails" }
 ].forEach(({ toggle, section, details }) => {
-  const t = document.getElementById(toggle);
-  t.addEventListener("change", e => {
-    document.getElementById(section).hidden = e.target.value === "no";
-    // vorige detailregels leegmaken
-    document.getElementById(details).innerHTML = "";
+  document.getElementById(toggle).addEventListener("change", e => {
+    const tonen = e.target.value === "yes";
+    document.getElementById(section).hidden = !tonen;
+    if (!tonen) document.getElementById(details).innerHTML = "";
   });
 });
 
-// genereer detailinvoer bij wijziging van aantal
+// bindCount generator
 function bindCount(countId, detailsId, generatorFn) {
   document.getElementById(countId).addEventListener("input", e => {
     const container = document.getElementById(detailsId);
     container.innerHTML = "";
-    const n = parseInt(e.target.value) || 0;
+    const n = parseInt(e.target.value, 10) || 0;
     for (let i = 1; i <= n; i++) {
       container.appendChild(generatorFn(i));
     }
   });
 }
 
-// omvormer: kies fase-aantal
+// Zonnepanelen-invoerdetails
 bindCount("solarCount", "solarDetails", i => {
   const div = document.createElement("div");
   div.innerHTML = `
-    Omvormer ${i} type:
-    <select data-role="solarType">
-      <option value="1F">1F</option>
-      <option value="3F">3F</option>
-    </select>
-  `;
+      Omvormer ${i} type:
+      <select data-role="solarType">
+        <option value="1F">1F</option>
+        <option value="3F">3F</option>
+      </select>
+    `;
   return div;
 });
 
-// EV-laders: kies model
+// EV-laadpunten
 bindCount("evCount", "evDetails", i => {
   const div = document.createElement("div");
   div.innerHTML = `
-    Laadpaal ${i}:
-    <select data-role="evType">
-      <option>EV Wall</option>
-      <option>EV One</option>
-      <option>EV Base</option>
-      <option>EV Ultra</option>
-    </select>
-  `;
+      Lader ${i} model:
+      <select data-role="evType">
+        <option>EV Wall</option>
+        <option>EV One</option>
+        <option>EV Base</option>
+        <option>EV Ultra</option>
+      </select>
+    `;
   return div;
 });
 
-// verbruikers: kies type & aansluiting
+// Verbruikers
 bindCount("loadCount", "loadDetails", i => {
   const div = document.createElement("div");
   div.innerHTML = `
-    Verbruiker ${i}:
-    <select data-role="loadType">
-      ${verbruikerTypes.map(t => `<option>${t}</option>`).join("")}
-    </select>
-    |
-    Aansluiting:
-    <select data-role="loadConn">
-      <option value="1F">1F</option>
-      <option value="3F">3F</option>
-    </select>
-  `;
+      Verbruiker ${i}:
+      <select data-role="loadType">
+        ${verbruikersTypes.map(t => `<option>${t}</option>`).join("")}
+      </select>
+      |
+      Aansluiting:
+      <select data-role="loadConn">
+        <option value="1F">1F</option>
+        <option value="3F">3F</option>
+      </select>
+    `;
   return div;
 });
 
-// navigatie tussen pagina's
+// Navigatie met validatie
 document.getElementById("toMeasurements").onclick = () => {
-  if (!document.getElementById("netType").value) {
-    return alert("Selecteer een netwerktype.");
+  const netType = document.getElementById("netType").value;
+  if (!netType) {
+    return alert("Selecteer een nettype.");
   }
-  maakMeetTabel();
-  toon("measure");
-  toon("config", false);
+
+  if (
+    document.getElementById("hasSolar").value === "yes" &&
+    document.getElementById("solarCount").value === ""
+  ) {
+    return alert("Geef het aantal omvormers in.");
+  }
+  if (
+    document.getElementById("hasEV").value === "yes" &&
+    document.getElementById("evCount").value === ""
+  ) {
+    return alert("Geef het aantal EV-laders in.");
+  }
+  if (
+    document.getElementById("hasLoads").value === "yes" &&
+    document.getElementById("loadCount").value === ""
+  ) {
+    return alert("Geef het aantal verbruikers in.");
+  }
+
+  buildMeasurementTable();
+  togglePage("measure", true);
+  togglePage("config", false);
 };
 
 document.getElementById("backConfig").onclick = () => {
-  toon("config");
-  toon("measure", false);
+  togglePage("config", true);
+  togglePage("measure", false);
 };
 
-// helper voor tonen/verbergen
-function toon(id, ja = true) {
-  document.getElementById(id).hidden = !ja;
+function togglePage(id, show) {
+  document.getElementById(id).hidden = !show;
 }
 
-// meettabel genereren op basis van configuratie
-function maakMeetTabel() {
+// Tabellen genereren
+function buildMeasurementTable() {
   const tbody = document.getElementById("measTable");
   tbody.innerHTML = "";
   const netType = document.getElementById("netType").value;
 
-  // hulpfunctie om rijen toe te voegen
-  function voegRijToe(naam, fase) {
+  function addRow(naam, fase) {
     const tr = document.createElement("tr");
     tr.innerHTML = `
-      <td>${naam}</td>
-      <td>${fase}</td>
-      <td><input class="I" type="number"/></td>
-      <td><input class="U" type="number"/></td>
-      <td><input class="P" type="number"/></td>
-      <td class="S">–</td>
-      <td class="PF">–</td>
-      <td class="Q">–</td>
-      <td class="alert"></td>
-    `;
+        <td>${naam}</td>
+        <td>${fase}</td>
+        <td><input class="I" type="number"/></td>
+        <td><input class="U" type="number"/></td>
+        <td><input class="P" type="number"/></td>
+        <td class="S">–</td>
+        <td class="PF">–</td>
+        <td class="Q">–</td>
+        <td class="alert"></td>
+      `;
     tbody.appendChild(tr);
   }
 
-  // Zonnepanelen
+  // Omvormers
   if (document.getElementById("hasSolar").value === "yes") {
     document.querySelectorAll("#solarDetails [data-role=solarType]")
       .forEach((sel, i) => {
         const naam = `Omvormer ${i + 1}`;
-        if (sel.value === "1F") voegRijToe(naam, "L1");
-        else["L1", "L2", "L3"].forEach(f => voegRijToe(naam, f));
+        if (sel.value === "1F") addRow(naam, "L1");
+        else["L1", "L2", "L3"].forEach(fase => addRow(naam, fase));
       });
   }
 
-  // EV
+  // EV-laders
   if (document.getElementById("hasEV").value === "yes") {
     document.querySelectorAll("#evDetails [data-role=evType]")
       .forEach((sel, i) => {
-        const naam = `Laadpaal ${i + 1}`;
-        ["L1", "L2", "L3"].forEach(f => voegRijToe(naam, f));
+        const naam = `EV-lader ${i + 1}`;
+        ["L1", "L2", "L3"].forEach(fase => addRow(naam, fase));
       });
   }
 
   // Verbruikers
   if (document.getElementById("hasLoads").value === "yes") {
-    const n = parseInt(document.getElementById("loadCount").value) || 0;
+    const n = parseInt(document.getElementById("loadCount").value, 10) || 0;
     for (let i = 1; i <= n; i++) {
       const type = document.querySelectorAll("#loadDetails [data-role=loadType]")[i - 1].value;
       const conn = document.querySelectorAll("#loadDetails [data-role=loadConn]")[i - 1].value;
-      if (conn === "1F") voegRijToe(type, i + " (L1)");
-      else["L1", "L2", "L3"].forEach(f => voegRijToe(type, f));
+      if (conn === "1F") addRow(type, "L1");
+      else["L1", "L2", "L3"].forEach(fase => addRow(type, fase));
     }
   }
 }
 
-// berekeningen en foutcontroles uitvoeren
+// Berekeningen uitvoeren met validatie
 document.getElementById("runChecks").onclick = () => {
-  document.querySelectorAll("#measTable tr").forEach(tr => {
+  const rows = Array.from(document.querySelectorAll("#measTable tr"));
+
+  // Controleer op lege velden
+  for (let tr of rows) {
+    const Istr = tr.querySelector(".I").value;
+    const Ustr = tr.querySelector(".U").value;
+    const Pstr = tr.querySelector(".P").value;
+    if (Istr === "" || Ustr === "" || Pstr === "") {
+      return alert("Vul ALLE meetvelden in.");
+    }
+  }
+
+  // Voer berekeningen uit
+  rows.forEach(tr => {
     const I = parseFloat(tr.querySelector(".I").value);
     const U = parseFloat(tr.querySelector(".U").value);
     const P = parseFloat(tr.querySelector(".P").value);
 
-    // S = U × I; PF = P/S; Q = √(S² – P²)
+    // S = U × I; PF = P / S; Q = √(S² – P²)
     const S = U * I;
     const PF = S ? P / S : 0;
     const Q = Math.sqrt(Math.max(0, S * S - P * P));
@@ -176,11 +208,11 @@ document.getElementById("runChecks").onclick = () => {
     tr.querySelector(".PF").textContent = PF.toFixed(2);
     tr.querySelector(".Q").textContent = Q.toFixed(0);
 
-    // foutmeldingen
+    // Foutmeldingen
     const cel = tr.querySelector(".alert");
     cel.textContent = "";
-    if (I < 0 && PF > 0.9) cel.textContent = "Fout stroomrichting (CT)";
-    else if (I < 0 && PF < 0.7) cel.textContent = "Fout fase-toewijzing";
-    else if (Math.abs(I) > 400) cel.textContent = "Controleer stroomtang (CT)";
+    if (I < 0 && PF > 0.9) cel.textContent = "CT-richting fout";
+    else if (I < 0 && PF < 0.7) cel.textContent = "Fasefout";
+    else if (Math.abs(I) > 400) cel.textContent = "Controleer CT-klem";
   });
 };
