@@ -1,0 +1,19 @@
+<script type="module">
+  // Import the functions you need from the SDKs you need
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/11.7.1/firebase-app.js";
+  // TODO: Add SDKs for Firebase products that you want to use
+  // https://firebase.google.com/docs/web/setup#available-libraries
+
+  // Your web app's Firebase configuration
+  const firebaseConfig = {
+    apiKey: "AIzaSyCTv_RtAGdSy2U75P9hBBaOKA79zsyiGWM",
+    authDomain: "energie-simulator-vives.firebaseapp.com",
+    projectId: "energie-simulator-vives",
+    storageBucket: "energie-simulator-vives.firebasestorage.app",
+    messagingSenderId: "942466572440",
+    appId: "1:942466572440:web:9eb7d0cc4139f5a86d70ed"
+  };
+
+  // Initialize Firebase
+  const app = initializeApp(firebaseConfig);
+</script>

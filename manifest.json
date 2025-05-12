@@ -1,0 +1,45 @@
+{
+    "name": "Energietechnologie simulatietool",
+    "short_name": "EnergieAPP",
+    "start_url": "/",
+    "display": "standalone",
+    "background_color": "#2196F3",
+    "theme_color": "#D9D7F1",
+    "icons": [
+        {
+            "src": "/images/icons/vives48.png",
+            "type": "image/png",
+            "sizes": "48x48"
+        },
+        {
+            "src": "/images/icons/vives72.png",
+            "type": "image/png",
+            "sizes": "72x72"
+        },
+        {
+            "src": "/images/icons/vives96.png",
+            "type": "image/png",
+            "sizes": "96x96"
+        },
+        {
+            "src": "/images/icons/vives144.png",
+            "type": "image/png",
+            "sizes": "144x144"
+        },
+        {
+            "src": "/images/icons/vives168.png",
+            "type": "image/png",
+            "sizes": "168x168"
+        },
+        {
+            "src": "/images/icons/vives192.png",
+            "type": "image/png",
+            "sizes": "192x192"
+        },
+        {
+            "src": "/images/icons/vives512.png",
+            "type": "image/png",
+            "sizes": "512x512"
+        }
+    ]
+}

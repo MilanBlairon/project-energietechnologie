@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+  <title>Installatiesimulator</title>
+  <link rel="stylesheet" href="styles/style.css"/>
+  <link rel="icon" type="image/x-icon" href="images/favicon.ico">
+  <link rel="manifest" href="manifest.json">
+  <script src="scripts/script.js" type="module"></script>
+</head>
+<body>
+  <!-- CONFIGURATIEPAGINA -->
+  <div id="config" class="page">
+    <h1>1. Configuratie</h1>
+
+    <!-- Algemene instellingen -->
+    <div class="section">
+      <label>Netwerktype:
+        <select id="netType">
+          <option value="">-- selecteer --</option>
+          <option value="1F">1F 230 V</option>
+          <option value="3F-star">3F 400 V (Y)</option>
+          <option value="3F-delta">3F 230 V (Δ)</option>
+        </select>
+      </label>
+
+      <label>Zonnepanelen?
+        <select id="hasSolar">
+          <option value="no">Nee</option>
+          <option value="yes">Ja</option>
+        </select>
+      </label>
+      <div id="solarSection" class="nested" hidden>
+        <label>Aantal omvormers:
+          <input type="number" id="solarCount" min="0" max="100" />
+        </label>
+        <div id="solarDetails"></div>
+      </div>
+
+      <label>Laadpaal?
+        <select id="hasEV">
+          <option value="no">Nee</option>
+          <option value="yes">Ja</option>
+        </select>
+      </label>
+      <div id="evSection" class="nested" hidden>
+        <label>Aantal laadpalen:
+          <input type="number" id="evCount" min="0" max="100" />
+        </label>
+        <div id="evDetails"></div>
+      </div>
+
+      <label>Andere verbruikers?
+        <select id="hasLoads">
+          <option value="no">Nee</option>
+          <option value="yes">Ja</option>
+        </select>
+      </label>
+      <div id="loadSection" class="nested" hidden>
+        <label>Aantal verbruikers:
+          <input type="number" id="loadCount" min="0" max="100" />
+        </label>
+        <div id="loadDetails"></div>
+      </div>
+    </div>
+
+    <button id="toMeasurements">Volgende: Metingen →</button>
+  </div>
+
+  <!-- METINGENPAGINA -->
+  <div id="measure" class="page" hidden>
+    <h1>2. Voer Metingen In</h1>
+    <table>
+      <thead>
+        <tr>
+          <th>Apparaat</th>
+          <th>Fase</th>
+          <th>I&nbsp;(A)</th>
+          <th>U&nbsp;(V)</th>
+          <th>P&nbsp;(W)</th>
+          <th>S&nbsp;(VA)</th>
+          <th>PF</th>
+          <th>Q&nbsp;(VAR)</th>
+          <th>Waarschuwing</th>
+        </tr>
+      </thead>
+      <tbody id="measTable"></tbody>
+    </table>
+    <button id="runChecks">Controleer</button>
+    <button id="backConfig">← Terug</button>
+  </div>
+</body>
+</html>
