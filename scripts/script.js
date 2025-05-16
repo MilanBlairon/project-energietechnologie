@@ -123,7 +123,24 @@ document.getElementById("backConfig").onclick = () => {
 };
 
 function togglePage(id, show) {
-  document.getElementById(id).hidden = !show;
+  const page = document.getElementById(id);
+  
+  // If hiding the page, first set it to hidden, then remove it from flow
+  if (!show) {
+    page.style.opacity = "0";
+    page.style.transform = "translateX(20px)";
+    setTimeout(() => {
+      page.hidden = true;
+    }, 500);
+  } 
+  // If showing, first add to flow, then animate in
+  else {
+    page.hidden = false;
+    // Force reflow to ensure transition happens
+    void page.offsetWidth;
+    page.style.opacity = "1";
+    page.style.transform = "translateX(0)";
+  }
 }
 
 // Tabellen genereren
@@ -160,11 +177,19 @@ function buildMeasurementTable() {
 
   // EV-laders
   if (document.getElementById("hasEV").value === "yes") {
-    document.querySelectorAll("#evDetails [data-role=evType]")
-      .forEach((sel, i) => {
-        const naam = `EV-lader ${i + 1}`;
-        ["L1", "L2", "L3"].forEach(fase => addRow(naam, fase));
-      });
+    const evCount = parseInt(document.getElementById("evCount").value);
+    for (let i = 0; i < evCount; i++) {
+      if (netType === "1F") {
+        addRow(`Laadpaal ${i + 1}`, "L");
+      } else if (netType === "split") {
+        addRow(`Laadpaal ${i + 1}`, "L1");
+        addRow(`Laadpaal ${i + 1}`, "L2");
+      } else {
+        addRow(`Laadpaal ${i + 1}`, "L1");
+        addRow(`Laadpaal ${i + 1}`, "L2");
+        addRow(`Laadpaal ${i + 1}`, "L3");
+      }
+    }
   }
 
   // Verbruikers
@@ -194,25 +219,56 @@ document.getElementById("runChecks").onclick = () => {
   }
 
   // Voer berekeningen uit
-  rows.forEach(tr => {
-    const I = parseFloat(tr.querySelector(".I").value);
-    const U = parseFloat(tr.querySelector(".U").value);
-    const P = parseFloat(tr.querySelector(".P").value);
+  rows.forEach((tr, index) => {
+    // Add a delay for cascading animation effect
+    setTimeout(() => {
+      const I = parseFloat(tr.querySelector(".I").value);
+      const U = parseFloat(tr.querySelector(".U").value);
+      const P = parseFloat(tr.querySelector(".P").value);
 
-    // S = U × I; PF = P / S; Q = √(S² – P²)
-    const S = U * I;
-    const PF = S ? P / S : 0;
-    const Q = Math.sqrt(Math.max(0, S * S - P * P));
+      // S = U × I; PF = P / S; Q = √(S² – P²)
+      const S = U * I;
+      const PF = S ? P / S : 0;
+      const Q = Math.sqrt(Math.max(0, S * S - P * P));
 
-    tr.querySelector(".S").textContent = S.toFixed(0);
-    tr.querySelector(".PF").textContent = PF.toFixed(2);
-    tr.querySelector(".Q").textContent = Q.toFixed(0);
+      const sCell = tr.querySelector(".S");
+      const pfCell = tr.querySelector(".PF");
+      const qCell = tr.querySelector(".Q");
+      
+      // Update values with animation
+      sCell.textContent = S.toFixed(0);
+      pfCell.textContent = PF.toFixed(2);
+      qCell.textContent = Q.toFixed(0);
+      
+      // Add animation class
+      [sCell, pfCell, qCell].forEach(cell => {
+        cell.classList.add("calculated");
+        // Remove class after animation completes to allow for future animations
+        setTimeout(() => cell.classList.remove("calculated"), 1000);
+      });
 
-    // Foutmeldingen
-    const cel = tr.querySelector(".alert");
-    cel.textContent = "";
-    if (I < 0 && PF > 0.9) cel.textContent = "CT-richting fout";
-    else if (I < 0 && PF < 0.7) cel.textContent = "Fasefout";
-    else if (Math.abs(I) > 400) cel.textContent = "Controleer CT-klem";
+      // Foutmeldingen
+      const cel = tr.querySelector(".alert");
+      cel.textContent = "";
+      if (I < 0 && PF > 0.9) cel.textContent = "CT-richting fout";
+      else if (I < 0 && PF < 0.7) cel.textContent = "Fasefout";
+      else if (Math.abs(I) > 400) cel.textContent = "Controleer CT-klem";
+      
+      if (cel.textContent) {
+        cel.style.animation = "shake 0.5s";
+        setTimeout(() => cel.style.animation = "", 500);
+      }
+    }, index * 50); // Staggered effect with 50ms between rows
   });
 };
+
+// Add this animation for error messages
+const style = document.createElement('style');
+style.textContent = `
+  @keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    10%, 30%, 50%, 70%, 90% { transform: translateX(-5px); }
+    20%, 40%, 60%, 80% { transform: translateX(5px); }
+  }
+`;
+document.head.appendChild(style);
