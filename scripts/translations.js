@@ -28,6 +28,7 @@ const translations = {
     
     // Meetpagina
     "measure_title": "2. Voer Metingen In",
+    "grid": "Net",
     "device": "Apparaat",
     "phase": "Fase",
     "warning": "Waarschuwing",
@@ -43,6 +44,9 @@ const translations = {
     "ct_direction": "CT-richting fout",
     "phase_error": "Fasefout",
     "check_ct": "Controleer CT-klem",
+    "wrong_phase_assignment": "Foute fasetoewijzing",
+    "wrong_clamp_direction": "Foute klemrichting",
+    "solar_grid_less_than_ev": "De som van grid en solar is kleiner dan het verbruik van de laadpaal",
     
     // Verbruikers
     "consumer_types": ["Jacuzzi", "Laadstation", "Lift", "Motor", "Oven", "Pomp", "Sauna", "Warmtepomp", "Zwembad"]
@@ -76,6 +80,7 @@ const translations = {
     
     // Measurement page
     "measure_title": "2. Enter Measurements",
+    "grid": "Grid",
     "device": "Device",
     "phase": "Phase",
     "warning": "Warning",
@@ -91,6 +96,9 @@ const translations = {
     "ct_direction": "CT direction error",
     "phase_error": "Phase error",
     "check_ct": "Check CT clamp",
+    "wrong_phase_assignment": "Wrong phase assignment",
+    "wrong_clamp_direction": "Wrong clamp direction",
+    "solar_grid_less_than_ev": "Solar and grid power sum is less than EV charger consumption",
     
     // Consumer types
     "consumer_types": ["Jacuzzi", "Charging station", "Elevator", "Motor", "Oven", "Pump", "Sauna", "Heat pump", "Swimming pool"]
@@ -124,6 +132,7 @@ const translations = {
     
     // Page de mesure
     "measure_title": "2. Saisir les mesures",
+    "grid": "Réseau",
     "device": "Appareil",
     "phase": "Phase",
     "warning": "Avertissement",
@@ -139,6 +148,9 @@ const translations = {
     "ct_direction": "Erreur de direction CT",
     "phase_error": "Erreur de phase",
     "check_ct": "Vérifiez la pince CT",
+    "wrong_phase_assignment": "Attribution de phase incorrecte",
+    "wrong_clamp_direction": "Direction de pince incorrecte",
+    "solar_grid_less_than_ev": "La somme de la puissance solaire et du réseau est inférieure à la consommation du chargeur EV",
     
     // Types de consommateurs
     "consumer_types": ["Jacuzzi", "Borne de recharge", "Ascenseur", "Moteur", "Four", "Pompe", "Sauna", "Pompe à chaleur", "Piscine"]

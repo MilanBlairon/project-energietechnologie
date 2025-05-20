@@ -77,6 +77,7 @@ function rebuildSolarDetails() {
   const n = parseInt(document.getElementById("solarCount").value, 10) || 0;
   const container = document.getElementById("solarDetails");
   const previousValues = [];
+  const netType = document.getElementById("netType").value;
   
   // Bewaar huidige selectiewaarden voor herbouwen
   document.querySelectorAll("#solarDetails [data-role=solarType]").forEach(select => {
@@ -88,20 +89,49 @@ function rebuildSolarDetails() {
   for (let i = 1; i <= n; i++) {
     const div = document.createElement("div");
     const lang = window.currentLanguage || 'nl';
+    
+    // Bepaal beschikbare opties op basis van nettype
+    let typeOptions = '';
+    
+    if (netType === "1F") {
+      // Bij 1F net is er maar 1 optie
+      typeOptions = '<input type="hidden" data-role="solarType" value="1F"><span>1F</span>';
+    } else if (netType === "split") {
+      // Bij split phase kunnen alleen 1F of 2F worden gekozen
+      typeOptions = `
+        <select data-role="solarType">
+          <option value="1F">1F</option>
+          <option value="2F">2F</option>
+        </select>
+      `;
+    } else {
+      // Bij 3F (ster of driehoek) kunnen zowel 1F als 3F worden gekozen
+      typeOptions = `
+        <select data-role="solarType">
+          <option value="1F">1F</option>
+          <option value="3F">3F</option>
+        </select>
+      `;
+    }
+    
     div.innerHTML = `
       ${translations[lang].inverter} ${i} ${translations[lang].type}:
-      <select data-role="solarType">
-        <option value="1F">1F</option>
-        <option value="3F">3F</option>
-      </select>
+      ${typeOptions}
     `;
     container.appendChild(div);
   }
   
-  // Herstel vorige selectiewaarden
-  document.querySelectorAll("#solarDetails [data-role=solarType]").forEach((select, index) => {
+  // Herstel vorige selectiewaarden waar mogelijk
+  document.querySelectorAll("#solarDetails [data-role=solarType]").forEach((element, index) => {
     if (previousValues[index]) {
-      select.value = previousValues[index];
+      if (element.tagName === "SELECT") {
+        // Check of de optie bestaat in de nieuwe lijst
+        const optionExists = Array.from(element.options).some(opt => opt.value === previousValues[index]);
+        if (optionExists) {
+          element.value = previousValues[index];
+        }
+      }
+      // Voor hidden inputs doen we niets extra, die hebben al een vaste waarde
     }
   });
 }
@@ -110,10 +140,16 @@ function rebuildEVDetails() {
   const n = parseInt(document.getElementById("evCount").value, 10) || 0;
   const container = document.getElementById("evDetails");
   const previousValues = [];
+  const previousConnValues = [];
+  const netType = document.getElementById("netType").value;
   
   // Bewaar huidige selectiewaarden voor herbouwen
   document.querySelectorAll("#evDetails [data-role=evType]").forEach(select => {
     previousValues.push(select.value);
+  });
+  
+  document.querySelectorAll("#evDetails [data-role=evConn]").forEach(select => {
+    previousConnValues.push(select.value);
   });
   
   // Wis en herbouw
@@ -121,6 +157,31 @@ function rebuildEVDetails() {
   for (let i = 1; i <= n; i++) {
     const div = document.createElement("div");
     const lang = window.currentLanguage || 'nl';
+    
+    // Bepaal beschikbare verbindingsopties op basis van nettype
+    let connectionOptions = '';
+    
+    if (netType === "1F") {
+      // Bij 1F net is er maar 1 optie
+      connectionOptions = '<input type="hidden" data-role="evConn" value="1F"><span>1F</span>';
+    } else if (netType === "split") {
+      // Bij split phase kunnen alleen 1F of 2F worden gekozen
+      connectionOptions = `
+        <select data-role="evConn">
+          <option value="1F">1F</option>
+          <option value="2F">2F</option>
+        </select>
+      `;
+    } else {
+      // Bij 3F (ster of driehoek) kunnen zowel 1F als 3F worden gekozen
+      connectionOptions = `
+        <select data-role="evConn">
+          <option value="1F">1F</option>
+          <option value="3F">3F</option>
+        </select>
+      `;
+    }
+    
     div.innerHTML = `
       ${translations[lang].charger} ${i} ${translations[lang].model}:
       <select data-role="evType">
@@ -129,6 +190,9 @@ function rebuildEVDetails() {
         <option>EV Base</option>
         <option>EV Ultra</option>
       </select>
+      |
+      ${translations[lang].connection}:
+      ${connectionOptions}
     `;
     container.appendChild(div);
   }
@@ -137,6 +201,19 @@ function rebuildEVDetails() {
   document.querySelectorAll("#evDetails [data-role=evType]").forEach((select, index) => {
     if (previousValues[index]) {
       select.value = previousValues[index];
+    }
+  });
+  
+  document.querySelectorAll("#evDetails [data-role=evConn]").forEach((element, index) => {
+    if (previousConnValues[index]) {
+      if (element.tagName === "SELECT") {
+        // Check of de optie bestaat in de nieuwe lijst
+        const optionExists = Array.from(element.options).some(opt => opt.value === previousConnValues[index]);
+        if (optionExists) {
+          element.value = previousConnValues[index];
+        }
+      }
+      // Voor hidden inputs doen we niets extra, die hebben al een vaste waarde
     }
   });
 }
@@ -359,32 +436,67 @@ function buildMeasurementTable() {
     tbody.appendChild(tr);
   }
 
+  // Add Grid connection rows at the top of the table
+  const gridName = translations[lang].grid || "Grid";
+  
+  // Add appropriate phases based on network type
+  if (netType === "1F") {
+    addRow(gridName, "L1");
+  } else if (netType === "split") {
+    addRow(gridName, "L1");
+    addRow(gridName, "L2");
+  } else if (netType === "3F-star" || netType === "3F-delta") {
+    addRow(gridName, "L1");
+    addRow(gridName, "L2");
+    addRow(gridName, "L3");
+  }
+  
+  // Add a separator row after the grid section
+  const separatorRow = document.createElement("tr");
+  separatorRow.classList.add("separator-row");
+  separatorRow.innerHTML = `
+    <td colspan="9" class="separator"></td>
+  `;
+  tbody.appendChild(separatorRow);
+
   // Omvormers
   if (document.getElementById("hasSolar").value === "yes") {
-    document.querySelectorAll("#solarDetails [data-role=solarType]")
-      .forEach((sel, i) => {
-        const naam = `${translations[lang].inverter} ${i + 1}`;
-        if (sel.value === "1F") addRow(naam, "L1");
-        else["L1", "L2", "L3"].forEach(fase => addRow(naam, fase));
-      });
+    document.querySelectorAll("#solarDetails [data-role=solarType]").forEach((element, i) => {
+      const naam = `${translations[lang].inverter} ${i + 1}`;
+      const connType = element.tagName === "SELECT" ? element.value : element.value || "1F";
+      
+      if (connType === "1F") {
+        addRow(naam, "L1");
+      } else if (connType === "2F" && netType === "split") {
+        addRow(naam, "L1");
+        addRow(naam, "L2");
+      } else if (connType === "3F") {
+        ["L1", "L2", "L3"].forEach(fase => addRow(naam, fase));
+      }
+    });
   }
 
   // EV-laders
   if (document.getElementById("hasEV").value === "yes") {
     const evCount = parseInt(document.getElementById("evCount").value);
     const evTypes = document.querySelectorAll("#evDetails [data-role=evType]");
+    const evConns = document.querySelectorAll("#evDetails [data-role=evConn]");
 
     for (let i = 0; i < evCount; i++) {
       // Haal het geselecteerde EV-type op uit de dropdown
       const evType = evTypes[i].value;
       const evName = `${translations[lang].charger} ${i + 1}: ${evType}`;
-
-      if (netType === "1F") {
+      
+      // Haal het verbindingstype op (1F/2F/3F)
+      const connElement = evConns[i];
+      const connType = connElement.tagName === "SELECT" ? connElement.value : connElement.value || "1F";
+      
+      if (connType === "1F") {
         addRow(evName, "L1");
-      } else if (netType === "split") {
+      } else if (connType === "2F" && netType === "split") {
         addRow(evName, "L1");
         addRow(evName, "L2");
-      } else {
+      } else if (connType === "3F") {
         addRow(evName, "L1");
         addRow(evName, "L2");
         addRow(evName, "L3");
@@ -395,12 +507,20 @@ function buildMeasurementTable() {
   // Verbruikers
   if (document.getElementById("hasLoads").value === "yes") {
     const n = parseInt(document.getElementById("loadCount").value, 10) || 0;
-    for (let i = 1; i <= n; i++) {
-      const type = document.querySelectorAll("#loadDetails [data-role=loadType]")[i - 1].value;
-      const conn = document.querySelectorAll("#loadDetails [data-role=loadConn]")[i - 1].value;
+    for (let i = 0; i < n; i++) {
+      const type = document.querySelectorAll("#loadDetails [data-role=loadType]")[i].value;
+      const connElement = document.querySelectorAll("#loadDetails [data-role=loadConn]")[i];
+      const connType = connElement.tagName === "SELECT" ? connElement.value : connElement.value || "1F";
+      
       // Gebruik de typenaam direct omdat deze al vertaald is vanuit de dropdown
-      if (conn === "1F") addRow(type, "L1");
-      else["L1", "L2", "L3"].forEach(fase => addRow(type, fase));
+      if (connType === "1F") {
+        addRow(type, "L1");
+      } else if (connType === "2F" && netType === "split") {
+        addRow(type, "L1");
+        addRow(type, "L2");
+      } else if (connType === "3F") {
+        ["L1", "L2", "L3"].forEach(fase => addRow(type, fase));
+      }
     }
   }
 }
@@ -420,18 +540,25 @@ document.getElementById("runChecks").onclick = () => {
     }
   }
 
-  // Voer berekeningen uit
-  rows.forEach((tr, index) => {
+  // Verzamel gegevens voor specifieke controles
+  const rowData = rows.map(tr => {
+    const name = tr.querySelector("td:nth-child(1)").textContent;
+    const phase = tr.querySelector("td:nth-child(2)").textContent;
+    const I = parseFloat(tr.querySelector(".I").value);
+    const U = parseFloat(getVoltageValue(tr.querySelector("td:nth-child(4)")));
+    const P = parseFloat(tr.querySelector(".P").value);
+    const S = U * I;
+    const PF = S ? P / S : 0;
+    const Q = Math.sqrt(Math.max(0, S * S - P * P));
+    
+    return { tr, name, phase, I, U, P, S, PF, Q };
+  });
+
+  // Voer berekeningen uit en toon waarschuwingen
+  rowData.forEach((data, index) => {
     // Voeg vertraging toe voor cascade-animatie-effect
     setTimeout(() => {
-      const I = parseFloat(tr.querySelector(".I").value);
-      const U = parseFloat(getVoltageValue(tr.querySelector("td:nth-child(4)")));
-      const P = parseFloat(tr.querySelector(".P").value);
-
-      // S = U × I; PF = P / S; Q = √(S² – P²)
-      const S = U * I;
-      const PF = S ? P / S : 0;
-      const Q = Math.sqrt(Math.max(0, S * S - P * P));
+      const { tr, name, phase, I, U, P, S, PF, Q } = data;
 
       const sCell = tr.querySelector(".S");
       const pfCell = tr.querySelector(".PF");
@@ -452,15 +579,77 @@ document.getElementById("runChecks").onclick = () => {
       // Foutmeldingen
       const cel = tr.querySelector(".alert");
       cel.textContent = "";
+      
+      // Bestaande waarschuwingen
       if (I < 0 && PF > 0.9) cel.textContent = translations[lang].ct_direction;
       else if (I < 0 && PF < 0.7) cel.textContent = translations[lang].phase_error;
       else if (Math.abs(I) > 400) cel.textContent = translations[lang].check_ct;
+      
+      // Nieuwe waarschuwingen
+      // 1. PF < 0,7 en I > 2 => foute fasetoewijzing
+      if (PF < 0.7 && I > 2) {
+        cel.textContent = translations[lang]?.wrong_phase_assignment || "Foute fasetoewijzing";
+      }
+      
+      // 2. PF > 0,7 en P < 0 => foute klemrichting
+      else if (PF > 0.7 && P < 0) {
+        cel.textContent = translations[lang]?.wrong_clamp_direction || "Foute klemrichting";
+      }
 
       if (cel.textContent) {
         cel.style.animation = "shake 0.5s";
         setTimeout(() => cel.style.animation = "", 500);
       }
     }, index * 50); // Geschakeld effect met 50ms tussen rijen
+  });
+  
+  // 3. SOLAR + grid < laadpaal => de som van grid en solar is kleiner dan het verbruik van de laadpaal
+  // Deze controle heeft gegevens van meerdere rijen nodig, dus we doen deze apart
+  
+  // Groepeer vermogen per fase
+  const powerByPhase = { L1: 0, L2: 0, L3: 0 };
+  const solarPowerByPhase = { L1: 0, L2: 0, L3: 0 };
+  const evPowerByPhase = { L1: 0, L2: 0, L3: 0 };
+  
+  rowData.forEach(data => {
+    const { name, phase, P } = data;
+    
+    if (name.includes(translations[lang].inverter) || name.toLowerCase().includes("inverter")) {
+      solarPowerByPhase[phase] += P;
+    } 
+    else if (name.includes(translations[lang].charger) || name.toLowerCase().includes("charger") || 
+             name.includes("EV ")) {
+      evPowerByPhase[phase] += P;
+    }
+    // Alle andere verbruikers worden beschouwd als 'grid'
+    else {
+      powerByPhase[phase] += P;
+    }
+  });
+  
+  // Controleer per fase of solar + grid < laadpaal
+  ['L1', 'L2', 'L3'].forEach(phase => {
+    if (evPowerByPhase[phase] > 0 && 
+        (solarPowerByPhase[phase] + powerByPhase[phase] < evPowerByPhase[phase])) {
+      
+      // Zoek de EV-rijen voor deze fase om waarschuwingen toe te voegen
+      rowData.forEach(data => {
+        const { tr, name, phase: dataPhase } = data;
+        if (dataPhase === phase && 
+            (name.includes(translations[lang].charger) || 
+             name.toLowerCase().includes("charger") || 
+             name.includes("EV "))) {
+          
+          const cel = tr.querySelector(".alert");
+          const warning = translations[lang]?.solar_grid_less_than_ev || 
+                         "De som van grid en solar is kleiner dan het verbruik van de laadpaal";
+          
+          cel.textContent = warning;
+          cel.style.animation = "shake 0.5s";
+          setTimeout(() => cel.style.animation = "", 500);
+        }
+      });
+    }
   });
 };
 
@@ -536,6 +725,22 @@ function updateConfigVisibility() {
       document.getElementById(id).innerHTML = "";
     });
   }
+  
+  // Herbouw alle details om de juiste connectieopties te tonen
+  if (document.getElementById("hasSolar").value === "yes" && 
+      document.getElementById("solarCount").value) {
+    rebuildSolarDetails();
+  }
+  
+  if (document.getElementById("hasEV").value === "yes" && 
+      document.getElementById("evCount").value) {
+    rebuildEVDetails();
+  }
+  
+  if (document.getElementById("hasLoads").value === "yes" && 
+      document.getElementById("loadCount").value) {
+    rebuildConsumerDetails();
+  }
 }
 
 // Functie om het juiste voltageveld te maken
@@ -594,108 +799,5 @@ function getVoltageValue(cell) {
 // Vervang het bestaande stijlblok onderaan je bestand met deze bijgewerkte versie
 const style = document.createElement('style');
 style.textContent = `
-  @keyframes shake {
-    0%, 100% { transform: translateX(0); }
-    10%, 30%, 50%, 70%, 90% { transform: translateX(-5px); }
-    20%, 40%, 60%, 80% { transform: translateX(5px); }
-  }
-  
-  /* Paginaovergangen en positionering - BIJGEWERKT naar alleen vervaging */
-  .page {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    opacity: 1;
-    transition: opacity 0.5s ease;
-  }
-  
-  .page[hidden] {
-    opacity: 0;
-    pointer-events: none;
-    display: none;
-  }
-  
-  /* Taalselectiepagina styling - BIJGEWERKT voor donker thema */
-  .language-page {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    min-height: 80vh;
-    background-color: var(--bg-primary);
-    z-index: 100;
-  }
-  
-  .language-container {
-    text-align: center;
-    background: var(--bg-secondary);
-    padding: 2rem;
-    border-radius: 10px;
-    box-shadow: 0 5px 15px var(--shadow-color);
-    max-width: 90%;
-    width: 500px;
-    border: 1px solid var(--border-color);
-  }
-  
-  .language-buttons {
-    display: flex;
-    flex-direction: column;
-    gap: 15px;
-    margin-top: 20px;
-  }
-  
-  .language-switcher {
-    position: absolute;
-    top: 20px;
-    right: 20px;
-    z-index: 10;
-  }
-  
-  .lang-btn {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    justify-content: center;
-    padding: 12px 20px;
-    border-radius: 8px;
-    background-color: var(--bg-tertiary);
-    border: 1px solid var(--border-color);
-    cursor: pointer;
-    font-size: 1rem;
-    transition: all 0.2s ease;
-    color: var(--text-primary);
-    width: 100%;
-  }
-  
-  .lang-btn:hover {
-    background-color: var(--accent-color);
-    transform: translateY(-2px);
-  }
-  
-  .lang-btn img {
-    width: 24px;
-    height: auto;
-  }
-  
-  /* Hoofdinhoudcontainer */
-  body {
-    position: relative;
-    margin: 0;
-    min-height: 100vh;
-    padding: 20px;
-    box-sizing: border-box;
-    background-color: var(--bg-primary);
-    color: var(--text-primary);
-  }
-  
-  /* Extra animatie voor berekeningen */
-  .calculated {
-    animation: highlight 1s ease;
-  }
-  
-  @keyframes highlight {
-    0% { background-color: rgba(52, 152, 219, 0.3); }
-    100% { background-color: transparent; }
-  }
 `;
 document.head.appendChild(style);

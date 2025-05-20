@@ -9,22 +9,21 @@
   --smappee-dark-gray: #333334;   /* RGB 51 51 52 - donkergrijs */
   
   /* Functional color mapping */
-  --bg-primary: var(--smappee-light-gray);
+  --bg-primary: var(--smappee-green-gray);
   --bg-secondary: var(--smappee-light-gray);
   --bg-tertiary: var(--smappee-medium-gray);
   --text-primary: var(--smappee-dark-gray);
   --text-secondary: var(--smappee-gray);
   --accent-color: var(--smappee-green);
-  --accent-hover: #7a9927; /* Darker shade of smappee-green for hover */
-  --danger-color: #e74c3c; /* Keeping alert colors for functional purposes */
+  --accent-hover: #7a9927; 
+  --danger-color: #e74c3c;
   --warning-color: #f39c12;
   --success-color: #2ecc71;
   --border-color: var(--smappee-gray);
   --input-bg: var(--smappee-light-gray);
-  --shadow-color: rgba(113, 113, 113, 0.4); /* Based on smappee-gray */
+  --shadow-color: rgba(113, 113, 113, 0.4);
 }
 
-/* Base styles */
 * {
   box-sizing: border-box;
   margin: 0;
@@ -34,7 +33,6 @@
 html, body {
   font-family: Arial, Helvetica;
   line-height: 1.6;
-  background-color: var(--bg-primary);
   color: var(--text-primary);
   min-height: 100vh;
   background-image: url('../images/ornament-bottom-left.png');
@@ -42,6 +40,10 @@ html, body {
   background-position: bottom left;
   background-attachment: fixed;
   background-size: 25% auto;
+  position: relative;
+  margin: 0;
+  padding: 20px;
+  background-color: var(--bg-primary);
 }
 
 h1 {
@@ -54,7 +56,6 @@ h1 {
   margin-top: 0;
 }
 
-/* Page transitions and positioning */
 .page {
   position: absolute;
   top: 0;
@@ -74,17 +75,16 @@ h1 {
   display: none;
 }
 
-/* Language selection page styling */
 .language-page {
   display: flex;
   align-items: center;
   justify-content: center;
+  min-height: 80vh;
   background-color: var(--bg-primary);
   z-index: 100;
 }
 
 .Smappee_logo {
-  margin-top: -70px; /* Adjusted to move it higher */
   display: block;
   max-width: 100%;
 }
@@ -92,9 +92,9 @@ h1 {
 .language-container {
   text-align: center;
   background: var(--bg-secondary);
-  padding: 3rem;
-  border-radius: 12px;
-  box-shadow: 0 8px 24px var(--shadow-color);
+  padding: 2rem;
+  border-radius: 10px;
+  box-shadow: 0 5px 15px var(--shadow-color);
   max-width: 90%;
   width: 500px;
   border: 1px solid var(--border-color);
@@ -119,13 +119,12 @@ h1 {
   z-index: 10;
 }
 
-/* Buttons */
 button {
   padding: 10px 20px;
-  background-color: var(--accent-color);
   color: white;
-  border: 2px solid #7a9927; /* Darker border based on accent-hover */
-  border-radius: 30px; /* Fully rounded corners */
+  border: 2px solid #7a9927;
+  background-color: var(--accent-color);
+  border-radius: 30px;
   cursor: pointer;
   font-size: 1rem;
   font-weight: 500;
@@ -135,7 +134,6 @@ button {
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
-/* Specific widths for config and measurement page buttons */
 #config button, #measure button {
   min-width: 160px;
   max-width: 200px;
@@ -156,9 +154,8 @@ button:active {
 }
 
 button#backConfig {
-  background-color: var(--bg-tertiary);
   color: var(--text-primary);
-  border-color: var(--smappee-gray); /* Darker border for back button */
+  border-color: var(--smappee-gray);
 }
 
 button#backConfig:hover {
@@ -166,27 +163,26 @@ button#backConfig:hover {
   color: var(--smappee-white);
 }
 
-/* Language buttons need specific styling to maintain alignment with rounded borders */
 .lang-btn {
   display: flex;
   align-items: center;
   gap: 15px;
   justify-content: center;
   padding: 14px 20px;
-  border-radius: 30px; /* Fully rounded corners */
-  background-color: var(--smappee-dark-gray); /* Changed to dark gray */
-  border: 2px solid var(--smappee-gray); /* Border color */
+  border-radius: 30px;
+  background-color: var(--smappee-dark-gray);
+  border: 2px solid var(--smappee-gray);
   cursor: pointer;
   font-size: 1.1rem;
   transition: all 0.2s ease;
-  color: white; /* Changed to white for better contrast on dark background */
+  color: white;
   width: 100%;
 }
 
 .lang-btn:hover {
-  background-color: var(--smappee-green); /* Changed to light gray on hover */
-  color: var(--smappee-dark-gray); /* Changed text color for contrast on light background */
-  border-color: var(--smappee-gray); /* Consistent border color */
+  background-color: var(--smappee-green);
+  color: var(--smappee-dark-gray);
+  border-color: var(--smappee-gray);
   transform: translateY(-2px);
 }
 
@@ -195,13 +191,12 @@ button#backConfig:hover {
   height: auto;
 }
 
-/* Form elements */
 select, input {
   background-color: var(--input-bg);
   color: var(--text-primary);
   padding: 10px 12px;
   border: 1px solid var(--border-color);
-  border-radius: 30px; /* Changed to fully rounded corners to match buttons */
+  border-radius: 30px;
   font-size: 1rem;
   transition: border-color 0.2s, box-shadow 0.2s;
   min-width: 150px;
@@ -215,11 +210,10 @@ select:focus, input:focus {
 
 input[type="number"] {
   width: 80px;
-  text-align: center; /* Center text for better appearance with rounded corners */
-  padding: 8px 12px; /* Slightly reduced padding for number inputs */
+  text-align: center;
+  padding: 8px 12px;
 }
 
-/* Adjust number input spin buttons for better rounded appearance */
 input[type="number"]::-webkit-inner-spin-button,
 input[type="number"]::-webkit-outer-spin-button {
   opacity: 1;
@@ -227,22 +221,19 @@ input[type="number"]::-webkit-outer-spin-button {
   margin-right: 5px;
 }
 
-/* Ensure language buttons on the language screen have the same rounded style */
 #languageSelector .lang-btn {
   border-radius: 30px;
-  overflow: hidden; /* Ensures content doesn't overflow the rounded corners */
+  overflow: hidden;
 }
 
-/* "Aantal xx" fields - specific styling for quantity inputs */
 input[id*="aantal"], 
 input[placeholder*="Aantal"], 
 input[name*="aantal"] {
   border-radius: 30px;
   text-align: center;
-  border: 2px solid var(--border-color); /* Slightly thicker border for emphasis */
+  border: 2px solid var(--border-color);
 }
 
-/* Table styling */
 table {
   width: 100%;
   border-collapse: collapse;
@@ -288,12 +279,10 @@ td input {
   border-radius: 30px;
 }
 
-/* Add hover effect to rows for modern UI */
 tbody tr:hover {
   background-color: rgba(153, 192, 49, 0.1);
 }
 
-/* Section layouts */
 .section {
   background-color: var(--bg-secondary);
   padding: 1.5rem;
@@ -312,7 +301,6 @@ tbody tr:hover {
   margin-bottom: 1rem;
 }
 
-/* Results and warnings styling */
 .alert {
   color: var(--danger-color);
   font-weight: 500;
@@ -333,14 +321,13 @@ tbody tr:hover {
   20%, 40%, 60%, 80% { transform: translateX(5px); }
 }
 
-/* Responsive layouts */
 @media (max-width: 768px) {
   h1 {
     font-size: 1.5rem;
   }
   
   html, body {
-    background-size: 50% auto; /* Larger background image on mobile */
+    background-size: 50% auto;
   }
   
   .page {
@@ -361,7 +348,6 @@ tbody tr:hover {
   }
 }
 
-/* Custom dropdown styling */
 select {
   appearance: none;
   background-image: url("data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%23717171%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-12.9%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2012.9l128%20127.9c3.6%203.6%207.8%205.4%2012.8%205.4s9.2-1.8%2012.8-5.4L287%2095c3.5-3.5%205.4-7.8%205.4-12.8%200-5-1.9-9.2-5.5-12.8z%22%2F%3E%3C%2Fsvg%3E");
@@ -369,25 +355,23 @@ select {
   background-position: right 10px center;
   background-size: 12px;
   padding-right: 30px;
-  border-radius: 30px; /* Fully rounded corners for all dropdowns */
+  border-radius: 30px;
   padding: 10px 20px;
 }
 
-/* Language dropdown specific styling */
 #languageSwitch {
   background-color: var(--bg-tertiary);
   border-color: var(--border-color);
   padding: 8px 30px 8px 15px;
-  border-radius: 30px; /* Adding fully rounded corners to match other buttons */
-  border: 2px solid var(--smappee-gray); /* Adding consistent border */
+  border-radius: 30px;
+  border: 2px solid var(--smappee-gray);
 }
 
-/* Additional styling to match the dropdown to button style */
 .language-switcher select {
   appearance: none;
   background-image: url("data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%23717171%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-12.9%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2012.9l128%20127.9c3.6%203.6%207.8%205.4%2012.8%205.4s9.2-1.8%2012.8-5.4L287%2095c3.5-3.5%205.4-7.8%205.4-12.8%200-5-1.9-9.2-5.5-12.8z%22%2F%3E%3C%2Fsvg%3E");
   background-position: right 15px center;
-  border-radius: 30px; /* Fully rounded corners */
+  border-radius: 30px;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   transition: all 0.2s ease;
 }
@@ -395,4 +379,14 @@ select {
 .language-switcher select:hover {
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
   transform: translateY(-2px);
+}
+
+.separator-row {
+  border: none;
+}
+
+.separator {
+  height: 10px;
+  background-color: var(--border-color);
+  opacity: 0.5;
 }
