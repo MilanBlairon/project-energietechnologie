@@ -11,8 +11,15 @@ document.addEventListener("DOMContentLoaded", () => {
 
 // Verbruikerscategorieën
 const verbruikersTypes = [
-  "Airco", "Boiler", "Droogkast", "Warmtepomp",
-  "Lichten", "Verwarming", "Oven", "Magnetron"
+  "Jacuzzi",
+  "Laadstation",
+  "Lift",
+  "Motor",
+  "Oven",
+  "Pomp",
+  "Sauna",
+  "Warmtepomp",
+  "Zwembad"
 ];
 
 // Toon/verberg configuratie-secties
@@ -124,7 +131,7 @@ document.getElementById("backConfig").onclick = () => {
 
 function togglePage(id, show) {
   const page = document.getElementById(id);
-  
+
   // If hiding the page, first set it to hidden, then remove it from flow
   if (!show) {
     page.style.opacity = "0";
@@ -132,7 +139,7 @@ function togglePage(id, show) {
     setTimeout(() => {
       page.hidden = true;
     }, 500);
-  } 
+  }
   // If showing, first add to flow, then animate in
   else {
     page.hidden = false;
@@ -178,16 +185,22 @@ function buildMeasurementTable() {
   // EV-laders
   if (document.getElementById("hasEV").value === "yes") {
     const evCount = parseInt(document.getElementById("evCount").value);
+    const evTypes = document.querySelectorAll("#evDetails [data-role=evType]");
+
     for (let i = 0; i < evCount; i++) {
+      // Get the selected EV type from the dropdown
+      const evType = evTypes[i].value;
+      const evName = `Laadpaal ${i + 1}: ${evType}`;
+
       if (netType === "1F") {
-        addRow(`Laadpaal ${i + 1}`, "L");
+        addRow(evName, "L1");
       } else if (netType === "split") {
-        addRow(`Laadpaal ${i + 1}`, "L1");
-        addRow(`Laadpaal ${i + 1}`, "L2");
+        addRow(evName, "L1");
+        addRow(evName, "L2");
       } else {
-        addRow(`Laadpaal ${i + 1}`, "L1");
-        addRow(`Laadpaal ${i + 1}`, "L2");
-        addRow(`Laadpaal ${i + 1}`, "L3");
+        addRow(evName, "L1");
+        addRow(evName, "L2");
+        addRow(evName, "L3");
       }
     }
   }
@@ -234,12 +247,12 @@ document.getElementById("runChecks").onclick = () => {
       const sCell = tr.querySelector(".S");
       const pfCell = tr.querySelector(".PF");
       const qCell = tr.querySelector(".Q");
-      
+
       // Update values with animation
       sCell.textContent = S.toFixed(0);
       pfCell.textContent = PF.toFixed(2);
       qCell.textContent = Q.toFixed(0);
-      
+
       // Add animation class
       [sCell, pfCell, qCell].forEach(cell => {
         cell.classList.add("calculated");
@@ -253,7 +266,7 @@ document.getElementById("runChecks").onclick = () => {
       if (I < 0 && PF > 0.9) cel.textContent = "CT-richting fout";
       else if (I < 0 && PF < 0.7) cel.textContent = "Fasefout";
       else if (Math.abs(I) > 400) cel.textContent = "Controleer CT-klem";
-      
+
       if (cel.textContent) {
         cel.style.animation = "shake 0.5s";
         setTimeout(() => cel.style.animation = "", 500);

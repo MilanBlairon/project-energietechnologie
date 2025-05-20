@@ -1,6 +1,6 @@
 {
-    "name": "Energietechnologie simulatietool",
-    "short_name": "EnergieAPP",
+    "name": "Energie",
+    "short_name": "Energie",
     "start_url": "/",
     "display": "standalone",
     "background_color": "#2196F3",
