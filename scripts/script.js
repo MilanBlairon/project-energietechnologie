@@ -527,47 +527,80 @@ function buildMeasurementTable() {
 
 // Berekeningen uitvoeren met validatie
 document.getElementById("runChecks").onclick = () => {
-  const rows = Array.from(document.querySelectorAll("#measTable tr"));
+  const rows = Array.from(document.querySelectorAll("#measTable tr:not(.separator-row)"));
   const lang = window.currentLanguage || 'nl';
 
   // Controleer op lege velden
   for (let tr of rows) {
-    const Istr = tr.querySelector(".I").value;
-    const Ustr = getVoltageValue(tr.querySelector("td:nth-child(4)"));
-    const Pstr = tr.querySelector(".P").value;
+    const IInput = tr.querySelector(".I");
+    const voltageCell = tr.querySelector("td:nth-child(4)");
+    const PInput = tr.querySelector(".P");
+    
+    // Skip this row if it doesn't have the expected inputs
+    if (!IInput || !voltageCell || !PInput) continue;
+    
+    const Istr = IInput.value;
+    const Ustr = getVoltageValue(voltageCell);
+    const Pstr = PInput.value;
     if (Istr === "" || Ustr === "" || Pstr === "") {
       return alert(translations[lang].fill_all);
     }
   }
 
   // Verzamel gegevens voor specifieke controles
-  const rowData = rows.map(tr => {
-    const name = tr.querySelector("td:nth-child(1)").textContent;
-    const phase = tr.querySelector("td:nth-child(2)").textContent;
-    const I = parseFloat(tr.querySelector(".I").value);
-    const U = parseFloat(getVoltageValue(tr.querySelector("td:nth-child(4)")));
-    const P = parseFloat(tr.querySelector(".P").value);
-    const S = U * I;
-    const PF = S ? P / S : 0;
-    const Q = Math.sqrt(Math.max(0, S * S - P * P));
-    
-    return { tr, name, phase, I, U, P, S, PF, Q };
-  });
+  const rowData = rows
+    .filter(tr => {
+      // Skip rows that don't have the required elements
+      return tr.querySelector(".I") && 
+             tr.querySelector("td:nth-child(4)") && 
+             tr.querySelector(".P");
+    })
+    .map(tr => {
+      const name = tr.querySelector("td:nth-child(1)").textContent;
+      const phase = tr.querySelector("td:nth-child(2)").textContent;
+      const I = parseFloat(tr.querySelector(".I").value);
+      const U = parseFloat(getVoltageValue(tr.querySelector("td:nth-child(4)")));
+      const P = parseFloat(tr.querySelector(".P").value);
+      const S = U * I;
+      
+      // Check if P > S (physically impossible)
+      const isPowerInvalid = Math.abs(P) > S;
+      
+      let PF, Q;
+      
+      if (isPowerInvalid) {
+        // Set placeholders for invalid calculations
+        PF = "!";
+        Q = "!";
+      } else {
+        // Normal calculation only if P <= S
+        PF = S !== 0 ? Math.abs(P / S) : 0;
+        Q = Math.sqrt(Math.max(0, S * S - P * P));
+      }
+      
+      // Opslaan of PF oorspronkelijk negatief zou zijn (voor waarschuwingen)
+      const isNegativePF = S !== 0 ? (P / S) < 0 : false;
+      
+      return { tr, name, phase, I, U, P, S, PF, Q, isNegativePF, isPowerInvalid };
+    });
 
-  // Voer berekeningen uit en toon waarschuwingen
+  // Loop through each row and update with calculations or warnings
   rowData.forEach((data, index) => {
     // Voeg vertraging toe voor cascade-animatie-effect
     setTimeout(() => {
-      const { tr, name, phase, I, U, P, S, PF, Q } = data;
+      const { tr, name, phase, I, U, P, S, PF, Q, isNegativePF, isPowerInvalid } = data;
 
       const sCell = tr.querySelector(".S");
       const pfCell = tr.querySelector(".PF");
       const qCell = tr.querySelector(".Q");
+      const alertCell = tr.querySelector(".alert");
 
-      // Werk waarden bij met animatie
+      // Display calculations
       sCell.textContent = S.toFixed(0);
-      pfCell.textContent = PF.toFixed(2);
-      qCell.textContent = Q.toFixed(0);
+      
+      // Display values or error indicator for PF and Q
+      pfCell.textContent = isPowerInvalid ? "!" : PF.toFixed(2);
+      qCell.textContent = isPowerInvalid ? "!" : Q.toFixed(0);
 
       // Voeg animatieklasse toe
       [sCell, pfCell, qCell].forEach(cell => {
@@ -577,35 +610,43 @@ document.getElementById("runChecks").onclick = () => {
       });
 
       // Foutmeldingen
-      const cel = tr.querySelector(".alert");
-      cel.textContent = "";
+      alertCell.textContent = "";
       
-      // Bestaande waarschuwingen
-      if (I < 0 && PF > 0.9) cel.textContent = translations[lang].ct_direction;
-      else if (I < 0 && PF < 0.7) cel.textContent = translations[lang].phase_error;
-      else if (Math.abs(I) > 400) cel.textContent = translations[lang].check_ct;
-      
-      // Nieuwe waarschuwingen
-      // 1. PF < 0,7 en I > 2 => foute fasetoewijzing
-      if (PF < 0.7 && I > 2) {
-        cel.textContent = translations[lang]?.wrong_phase_assignment || "Foute fasetoewijzing";
+      // Check for physically impossible power values first
+      if (isPowerInvalid) {
+        alertCell.textContent = translations[lang]?.impossible_power || 
+                               "Onmogelijke P > S: controleer metingen";
       }
-      
-      // 2. PF > 0,7 en P < 0 => foute klemrichting
-      else if (PF > 0.7 && P < 0) {
-        cel.textContent = translations[lang]?.wrong_clamp_direction || "Foute klemrichting";
+      // Existing warnings only if power values are valid
+      else {
+        // Bestaande waarschuwingen met aanpassingen
+        if (I < 0 && PF > 0.9) alertCell.textContent = translations[lang].ct_direction;
+        else if (I < 0 && PF < 0.7) alertCell.textContent = translations[lang].phase_error;
+        else if (Math.abs(I) > 400) alertCell.textContent = translations[lang].check_ct;
+        
+        // Nieuwe waarschuwingen
+        // Waarschuwing voor negatieve powerfactor
+        else if (isNegativePF) {
+          alertCell.textContent = translations[lang]?.negative_pf || "Negatieve powerfactor gedetecteerd";
+        }
+        // 1. PF < 0,7 en I > 2 => foute fasetoewijzing
+        else if (PF < 0.7 && I > 2) {
+          alertCell.textContent = translations[lang]?.wrong_phase_assignment || "Foute fasetoewijzing";
+        }
+        // 2. PF > 0,7 en P < 0 => foute klemrichting
+        else if (PF > 0.7 && P < 0) {
+          alertCell.textContent = translations[lang]?.wrong_clamp_direction || "Foute klemrichting";
+        }
       }
 
-      if (cel.textContent) {
-        cel.style.animation = "shake 0.5s";
-        setTimeout(() => cel.style.animation = "", 500);
+      if (alertCell.textContent) {
+        alertCell.style.animation = "shake 0.5s";
+        setTimeout(() => alertCell.style.animation = "", 500);
       }
     }, index * 50); // Geschakeld effect met 50ms tussen rijen
   });
   
-  // 3. SOLAR + grid < laadpaal => de som van grid en solar is kleiner dan het verbruik van de laadpaal
-  // Deze controle heeft gegevens van meerdere rijen nodig, dus we doen deze apart
-  
+  // Rest of the function for phase power calculations remains unchanged
   // Groepeer vermogen per fase
   const powerByPhase = { L1: 0, L2: 0, L3: 0 };
   const solarPowerByPhase = { L1: 0, L2: 0, L3: 0 };
