@@ -1,111 +1,398 @@
-body { font-family: sans-serif; background: #f8f9fa; margin: 0; padding: 1rem; }
-.page { max-width: 900px; margin: auto; background: #fff; padding: 1.5rem; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); opacity: 1; transition: opacity 0.5s ease, transform 0.5s ease; }
-.page[hidden] { opacity: 0; transform: translateX(20px); pointer-events: none; }
-.section label { display: block; margin-bottom: 0.5rem; }
-.section { background-color: #f8f9fa; border-radius: 8px; padding: 15px; margin-bottom: 20px; box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05); transition: all 0.3s; }
-.section:hover { box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1); }
-.nested { margin-left: 1.5rem; margin-bottom: 1rem; }
-.nested div { margin-top: 0.5rem; }
-/* Table styling improvements */
+:root {
+  /* New Smappee color palette */
+  --smappee-green: #99c031;       /* RGB 153 192 49 - groen */
+  --smappee-white: #fffaf6;       /* RGB 255 250 246 - wit */
+  --smappee-gray: #717171;        /* RGB 113 113 113 - grijs */
+  --smappee-light-green: #cce3dd; /* RGB 204 227 221 - groen licht */
+  --smappee-light-gray: #f2f2f2;  /* RGB 242 242 242 - lichtgrijs */
+  --smappee-medium-gray: #e1d7d2; /* RGB 225 215 210 - grijs */
+  --smappee-dark-gray: #333334;   /* RGB 51 51 52 - donkergrijs */
+  
+  /* Functional color mapping */
+  --bg-primary: var(--smappee-light-gray);
+  --bg-secondary: var(--smappee-light-gray);
+  --bg-tertiary: var(--smappee-medium-gray);
+  --text-primary: var(--smappee-dark-gray);
+  --text-secondary: var(--smappee-gray);
+  --accent-color: var(--smappee-green);
+  --accent-hover: #7a9927; /* Darker shade of smappee-green for hover */
+  --danger-color: #e74c3c; /* Keeping alert colors for functional purposes */
+  --warning-color: #f39c12;
+  --success-color: #2ecc71;
+  --border-color: var(--smappee-gray);
+  --input-bg: var(--smappee-light-gray);
+  --shadow-color: rgba(113, 113, 113, 0.4); /* Based on smappee-gray */
+}
+
+/* Base styles */
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html, body {
+  font-family: Arial, Helvetica;
+  line-height: 1.6;
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+  min-height: 100vh;
+  background-image: url('../images/ornament-bottom-left.png');
+  background-repeat: no-repeat;
+  background-position: bottom left;
+  background-attachment: fixed;
+  background-size: 25% auto;
+}
+
+h1 {
+  font-size: 2rem;
+  margin-bottom: 1.5rem;
+  font-weight: 500;
+  color: var(--text-primary);
+  border-bottom: 2px solid var(--accent-color);
+  padding-bottom: 0.5rem;
+  margin-top: 0;
+}
+
+/* Page transitions and positioning */
+.page {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  opacity: 1;
+  transition: opacity 0.5s ease;
+  padding: 2rem;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.page[hidden] {
+  opacity: 0;
+  pointer-events: none;
+  display: none;
+}
+
+/* Language selection page styling */
+.language-page {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: var(--bg-primary);
+  z-index: 100;
+}
+
+.Smappee_logo {
+  margin-top: -70px; /* Adjusted to move it higher */
+  display: block;
+  max-width: 100%;
+}
+
+.language-container {
+  text-align: center;
+  background: var(--bg-secondary);
+  padding: 3rem;
+  border-radius: 12px;
+  box-shadow: 0 8px 24px var(--shadow-color);
+  max-width: 90%;
+  width: 500px;
+  border: 1px solid var(--border-color);
+}
+
+.language-container h1 {
+  margin-bottom: 2rem;
+  border-bottom: none;
+}
+
+.language-buttons {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  margin-top: 20px;
+}
+
+.language-switcher {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  z-index: 10;
+}
+
+/* Buttons */
+button {
+  padding: 10px 20px;
+  background-color: var(--accent-color);
+  color: white;
+  border: 2px solid #7a9927; /* Darker border based on accent-hover */
+  border-radius: 30px; /* Fully rounded corners */
+  cursor: pointer;
+  font-size: 1rem;
+  font-weight: 500;
+  margin-right: 10px;
+  margin-top: 20px;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* Specific widths for config and measurement page buttons */
+#config button, #measure button {
+  min-width: 160px;
+  max-width: 200px;
+  padding: 10px 15px;
+  white-space: nowrap;
+  text-align: center;
+}
+
+button:hover {
+  background-color: var(--accent-hover);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+
+button:active {
+  transform: translateY(1px);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+}
+
+button#backConfig {
+  background-color: var(--bg-tertiary);
+  color: var(--text-primary);
+  border-color: var(--smappee-gray); /* Darker border for back button */
+}
+
+button#backConfig:hover {
+  background-color: var(--border-color);
+  color: var(--smappee-white);
+}
+
+/* Language buttons need specific styling to maintain alignment with rounded borders */
+.lang-btn {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  justify-content: center;
+  padding: 14px 20px;
+  border-radius: 30px; /* Fully rounded corners */
+  background-color: var(--smappee-dark-gray); /* Changed to dark gray */
+  border: 2px solid var(--smappee-gray); /* Border color */
+  cursor: pointer;
+  font-size: 1.1rem;
+  transition: all 0.2s ease;
+  color: white; /* Changed to white for better contrast on dark background */
+  width: 100%;
+}
+
+.lang-btn:hover {
+  background-color: var(--smappee-green); /* Changed to light gray on hover */
+  color: var(--smappee-dark-gray); /* Changed text color for contrast on light background */
+  border-color: var(--smappee-gray); /* Consistent border color */
+  transform: translateY(-2px);
+}
+
+.lang-btn img {
+  width: 24px;
+  height: auto;
+}
+
+/* Form elements */
+select, input {
+  background-color: var(--input-bg);
+  color: var(--text-primary);
+  padding: 10px 12px;
+  border: 1px solid var(--border-color);
+  border-radius: 30px; /* Changed to fully rounded corners to match buttons */
+  font-size: 1rem;
+  transition: border-color 0.2s, box-shadow 0.2s;
+  min-width: 150px;
+}
+
+select:focus, input:focus {
+  outline: none;
+  border-color: var(--accent-color);
+  box-shadow: 0 0 0 2px rgba(153, 192, 49, 0.3);
+}
+
+input[type="number"] {
+  width: 80px;
+  text-align: center; /* Center text for better appearance with rounded corners */
+  padding: 8px 12px; /* Slightly reduced padding for number inputs */
+}
+
+/* Adjust number input spin buttons for better rounded appearance */
+input[type="number"]::-webkit-inner-spin-button,
+input[type="number"]::-webkit-outer-spin-button {
+  opacity: 1;
+  height: 24px;
+  margin-right: 5px;
+}
+
+/* Ensure language buttons on the language screen have the same rounded style */
+#languageSelector .lang-btn {
+  border-radius: 30px;
+  overflow: hidden; /* Ensures content doesn't overflow the rounded corners */
+}
+
+/* "Aantal xx" fields - specific styling for quantity inputs */
+input[id*="aantal"], 
+input[placeholder*="Aantal"], 
+input[name*="aantal"] {
+  border-radius: 30px;
+  text-align: center;
+  border: 2px solid var(--border-color); /* Slightly thicker border for emphasis */
+}
+
+/* Table styling */
 table {
   width: 100%;
   border-collapse: collapse;
   margin: 20px 0;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  background-color: var(--bg-secondary);
+  border-radius: 12px;
   overflow: hidden;
-  border-radius: 8px;
-  transition: all 0.3s ease;
+  box-shadow: 0 4px 12px var(--shadow-color);
+  border: none;
+}
+
+th, td {
+  padding: 12px 15px;
+  text-align: left;
+  border-bottom: 1px solid var(--border-color);
 }
 
 thead {
-  background-color: #2c3e50;
+  background-color: var(--smappee-dark-gray);
+}
+
+thead th {
   color: white;
+  font-weight: 500;
+  text-transform: uppercase;
+  font-size: 0.85rem;
+  letter-spacing: 0.5px;
+  padding: 15px;
+  border-bottom: none;
 }
 
-th {
-  padding: 12px 15px;
-  text-align: left;
-  font-weight: 600;
-  position: sticky;
-  top: 0;
+tr:nth-child(even) {
+  background-color: rgba(113, 113, 113, 0.05);
 }
 
-td {
-  padding: 10px 15px;
-  border-bottom: 1px solid #ddd;
+tr:last-child td {
+  border-bottom: none;
 }
 
-tbody tr {
-  transition: background-color 0.3s;
-}
-
-tbody tr:hover {
-  background-color: #f5f9fc;
-}
-
-tbody tr:nth-child(even) {
-  background-color: #f2f2f2;
-}
-
-/* Input fields in table */
-table input[type="number"] {
+td input {
   width: 80px;
-  padding: 6px;
-  border: 1px solid #ccc;
-  border-radius: 4px;
-  transition: border 0.3s, box-shadow 0.3s;
+  text-align: right;
+  border-radius: 30px;
 }
 
-table input[type="number"]:focus {
-  border-color: #3498db;
-  box-shadow: 0 0 5px rgba(52, 152, 219, 0.5);
-  outline: none;
+/* Add hover effect to rows for modern UI */
+tbody tr:hover {
+  background-color: rgba(153, 192, 49, 0.1);
 }
 
-/* Warning styling */
-td.alert {
-  color: #e74c3c;
-  font-weight: bold;
-  transition: all 0.3s;
+/* Section layouts */
+.section {
+  background-color: var(--bg-secondary);
+  padding: 1.5rem;
+  border-radius: 8px;
+  margin-bottom: 1.5rem;
+  box-shadow: 0 4px 12px var(--shadow-color);
+  border: 1px solid var(--border-color);
 }
 
-/* Animated result cells */
-td.S, td.PF, td.Q {
-  position: relative;
-  transition: all 0.4s ease;
+.nested {
+  margin-left: 1.5rem;
+  padding-top: 0.5rem;
+  padding-bottom: 0.5rem;
+  border-left: 3px solid var(--accent-color);
+  padding-left: 1rem;
+  margin-bottom: 1rem;
 }
 
-/* Animation for calculations */
+/* Results and warnings styling */
+.alert {
+  color: var(--danger-color);
+  font-weight: 500;
+}
+
 .calculated {
   animation: highlight 1s ease;
 }
 
 @keyframes highlight {
-  0% { background-color: rgba(52, 152, 219, 0.3); }
+  0% { background-color: rgba(153, 192, 49, 0.3); }
   100% { background-color: transparent; }
 }
 
-/* Improved button styling */
-button {
-  padding: 10px 16px;
-  background-color: #3498db;
-  color: white;
-  border: none;
-  border-radius: 5px;
-  cursor: pointer;
-  transition: all 0.3s;
-  margin: 10px 5px;
-  font-weight: 600;
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  10%, 30%, 50%, 70%, 90% { transform: translateX(-5px); }
+  20%, 40%, 60%, 80% { transform: translateX(5px); }
 }
 
-button:hover {
-  background-color: #2980b9;
+/* Responsive layouts */
+@media (max-width: 768px) {
+  h1 {
+    font-size: 1.5rem;
+  }
+  
+  html, body {
+    background-size: 50% auto; /* Larger background image on mobile */
+  }
+  
+  .page {
+    padding: 1rem;
+  }
+  
+  table {
+    display: block;
+    overflow-x: auto;
+  }
+  
+  td, th {
+    padding: 8px 10px;
+  }
+  
+  .language-container {
+    padding: 1.5rem;
+  }
+}
+
+/* Custom dropdown styling */
+select {
+  appearance: none;
+  background-image: url("data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%23717171%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-12.9%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2012.9l128%20127.9c3.6%203.6%207.8%205.4%2012.8%205.4s9.2-1.8%2012.8-5.4L287%2095c3.5-3.5%205.4-7.8%205.4-12.8%200-5-1.9-9.2-5.5-12.8z%22%2F%3E%3C%2Fsvg%3E");
+  background-repeat: no-repeat;
+  background-position: right 10px center;
+  background-size: 12px;
+  padding-right: 30px;
+  border-radius: 30px; /* Fully rounded corners for all dropdowns */
+  padding: 10px 20px;
+}
+
+/* Language dropdown specific styling */
+#languageSwitch {
+  background-color: var(--bg-tertiary);
+  border-color: var(--border-color);
+  padding: 8px 30px 8px 15px;
+  border-radius: 30px; /* Adding fully rounded corners to match other buttons */
+  border: 2px solid var(--smappee-gray); /* Adding consistent border */
+}
+
+/* Additional styling to match the dropdown to button style */
+.language-switcher select {
+  appearance: none;
+  background-image: url("data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%23717171%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-12.9%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2012.9l128%20127.9c3.6%203.6%207.8%205.4%2012.8%205.4s9.2-1.8%2012.8-5.4L287%2095c3.5-3.5%205.4-7.8%205.4-12.8%200-5-1.9-9.2-5.5-12.8z%22%2F%3E%3C%2Fsvg%3E");
+  background-position: right 15px center;
+  border-radius: 30px; /* Fully rounded corners */
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  transition: all 0.2s ease;
+}
+
+.language-switcher select:hover {
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
   transform: translateY(-2px);
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
-
-button:active {
-  transform: translateY(0);
-}
-
-.alert { color: #d00; font-weight: bold; }
