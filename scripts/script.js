@@ -433,10 +433,16 @@ function buildMeasurementTable() {
 
   function addRow(naam, fase, isGrid = false) {
     const tr = document.createElement("tr");
+    
+    // Create flip button HTML conditionally based on whether it's a grid row
+    const flipButtonHTML = isGrid ? 
+      '<td class="direction-cell"></td>' : 
+      `<td class="direction-cell"><button class="flip-clamp" title="${translations[lang].flip_clamp || 'Flip clamp direction'}">⟲</button></td>`;
+    
     tr.innerHTML = `
         <td>${naam}</td>
         <td></td>
-        <td class="direction-cell"><button class="flip-clamp" title="${translations[lang].flip_clamp || 'Flip clamp direction'}">⟲</button></td>
+        ${flipButtonHTML}
         <td class="amperage-cell"><input class="I" type="number"/></td>
         <td></td>
         <td><input class="P" type="number"/></td>
@@ -460,34 +466,36 @@ function buildMeasurementTable() {
       gridRows[fase] = tr;
     }
     
-    // Add event listener to the flip clamp button
-    const flipButton = tr.querySelector(".flip-clamp");
-    flipButton.addEventListener("click", function() {
-      const amperageInput = tr.querySelector(".I");
-      if (amperageInput.value) {
-        // Flip the sign of the current value
-        const newValue = -1 * parseFloat(amperageInput.value);
-        amperageInput.value = newValue.toFixed(1);
-        
-        // Apply a quick visual feedback
-        amperageInput.classList.add("flipped");
-        setTimeout(() => amperageInput.classList.remove("flipped"), 500);
-        
-        // Add/remove the inverted class based on the new value
-        if (newValue < 0) {
-          flipButton.classList.add("inverted");
-        } else {
-          flipButton.classList.remove("inverted");
+    // Add event listener to the flip clamp button only for non-grid rows
+    if (!isGrid) {
+      const flipButton = tr.querySelector(".flip-clamp");
+      flipButton.addEventListener("click", function() {
+        const amperageInput = tr.querySelector(".I");
+        if (amperageInput.value) {
+          // Flip the sign of the current value
+          const newValue = -1 * parseFloat(amperageInput.value);
+          amperageInput.value = newValue.toFixed(1);
+          
+          // Apply a quick visual feedback
+          amperageInput.classList.add("flipped");
+          setTimeout(() => amperageInput.classList.remove("flipped"), 500);
+          
+          // Add/remove the inverted class based on the new value
+          if (newValue < 0) {
+            flipButton.classList.add("inverted");
+          } else {
+            flipButton.classList.remove("inverted");
+          }
+          
+          // Update grid values after flipping
+          updateGridValues();
+          // Re-run calculations if they were already run
+          if (document.querySelector("#measTable .S").textContent !== "–") {
+            document.getElementById("runChecks").click();
+          }
         }
-        
-        // Update grid values after flipping
-        updateGridValues();
-        // Re-run calculations if they were already run
-        if (document.querySelector("#measTable .S").textContent !== "–") {
-          document.getElementById("runChecks").click();
-        }
-      }
-    });
+      });
+    }
     
     tbody.appendChild(tr);
     return tr;
@@ -675,7 +683,7 @@ document.getElementById("runChecks").onclick = () => {
   // Controleer op lege velden
   for (let tr of rows) {
     const IInput = tr.querySelector(".I");
-    const voltageCell = tr.querySelector("td:nth-child(5)"); // Updated from 4 to 5
+    const voltageCell = tr.querySelector("td:nth-child(5)"); // Voltage cell is at position 5
     const PInput = tr.querySelector(".P");
     
     // Skip this row if it doesn't have the expected inputs
@@ -694,7 +702,7 @@ document.getElementById("runChecks").onclick = () => {
     .filter(tr => {
       // Skip rows that don't have the required elements
       return tr.querySelector(".I") && 
-             tr.querySelector("td:nth-child(4)") && 
+             tr.querySelector("td:nth-child(5)") && 
              tr.querySelector(".P");
     })
     .map(tr => {
@@ -702,9 +710,9 @@ document.getElementById("runChecks").onclick = () => {
       const phaseSelect = tr.querySelector(".phase-select");
       const phase = phaseSelect ? phaseSelect.value : "L1"; // Get selected phase
       const I = parseFloat(tr.querySelector(".I").value);
-      const U = parseFloat(getVoltageValue(tr.querySelector("td:nth-child(4)")));
+      const U = parseFloat(getVoltageValue(tr.querySelector("td:nth-child(5)")));
       const P = parseFloat(tr.querySelector(".P").value);
-      const S = U * I;
+      const S = Math.abs(U * I); // Schijnbaar vermogen is altijd positief
       
       // Check if P > S (physically impossible)
       const isPowerInvalid = Math.abs(P) > S;
@@ -752,36 +760,48 @@ document.getElementById("runChecks").onclick = () => {
         setTimeout(() => cell.classList.remove("calculated"), 1000);
       });
 
-      // Foutmeldingen
+      // Wis bestaande waarschuwingen
       alertCell.textContent = "";
       
-      // Check for physically impossible power values first
+      // 1. Check for physically impossible power values
       if (isPowerInvalid) {
         alertCell.textContent = translations[lang]?.impossible_power || 
                                "Onmogelijke P > S: controleer metingen";
       }
-      // Existing warnings only if power values are valid
+      // Alleen andere waarschuwingen tonen als het vermogen fysiek mogelijk is
       else {
-        // Bestaande waarschuwingen met aanpassingen
-        if (I < 0 && PF > 0.9) alertCell.textContent = translations[lang].ct_direction;
-        else if (I < 0 && PF < 0.7) alertCell.textContent = translations[lang].phase_error;
-        else if (Math.abs(I) > 400) alertCell.textContent = translations[lang].check_ct;
-        
-        // Nieuwe waarschuwingen
-        // Waarschuwing voor negatieve powerfactor
-        else if (isNegativePF) {
-          alertCell.textContent = translations[lang]?.negative_pf || "Negatieve powerfactor gedetecteerd";
+        // 2. Controleer CT-richting (CT direction error)
+        // Als stroom negatief is maar powerfactor hoog (>0.9), wijst dit op onjuiste CT-richting
+        if (I < 0 && PF > 0.9) {
+          alertCell.textContent = translations[lang].ct_direction;
         }
-        // 1. PF < 0,7 en I > 2 => foute fasetoewijzing
+        // 3. Controleer fasefout (Phase error)
+        // Als stroom negatief is en powerfactor laag (<0.7), wijst dit op fasefout
+        else if (I < 0 && PF < 0.7) {
+          alertCell.textContent = translations[lang].phase_error;
+        }
+        // 4. Controleer CT-klem (Check CT clamp)
+        // Als de absolute stroom heel hoog is (>400A), controleer de klem
+        else if (Math.abs(I) > 400) {
+          alertCell.textContent = translations[lang].check_ct;
+        }
+        // 5. Foute fasetoewijzing (Wrong phase assignment)
+        // Als powerfactor laag is (<0.7) en stroom significant (>2A), wijst dit op foute fasetoewijzing
         else if (PF < 0.7 && I > 2) {
-          alertCell.textContent = translations[lang]?.wrong_phase_assignment || "Foute fasetoewijzing";
+          alertCell.textContent = translations[lang].wrong_phase_assignment;
         }
-        // 2. PF > 0,7 en P < 0 => foute klemrichting
+        // 6. Foute klemrichting (Wrong clamp direction)
+        // Als powerfactor hoog is (>0.7) maar vermogen negatief, wijst dit op foute klemrichting
         else if (PF > 0.7 && P < 0) {
-          alertCell.textContent = translations[lang]?.wrong_clamp_direction || "Foute klemrichting";
+          alertCell.textContent = translations[lang].wrong_clamp_direction;
+        }
+        // 7. Negatieve powerfactor waarschuwing
+        else if (isNegativePF && translations[lang]?.negative_pf) {
+          alertCell.textContent = translations[lang].negative_pf;
         }
       }
 
+      // Animeer waarschuwingen
       if (alertCell.textContent) {
         alertCell.style.animation = "shake 0.5s";
         setTimeout(() => alertCell.style.animation = "", 500);
@@ -789,7 +809,6 @@ document.getElementById("runChecks").onclick = () => {
     }, index * 50); // Geschakeld effect met 50ms tussen rijen
   });
   
-  // Rest of the function for phase power calculations remains unchanged
   // Groepeer vermogen per fase
   const powerByPhase = { L1: 0, L2: 0, L3: 0 };
   const solarPowerByPhase = { L1: 0, L2: 0, L3: 0 };
@@ -797,21 +816,23 @@ document.getElementById("runChecks").onclick = () => {
   
   rowData.forEach(data => {
     const { name, phase, P } = data;
+    const deviceType = getDeviceType(name, lang);
     
-    if (name.includes(translations[lang].inverter) || name.toLowerCase().includes("inverter")) {
+    // Categoriseer vermogen op basis van apparaattype
+    if (deviceType === "solar") {
       solarPowerByPhase[phase] += P;
     } 
-    else if (name.includes(translations[lang].charger) || name.toLowerCase().includes("charger") || 
-             name.includes("EV ")) {
+    else if (deviceType === "ev") {
       evPowerByPhase[phase] += P;
     }
-    // Alle andere verbruikers worden beschouwd als 'grid'
-    else {
+    // Grid en andere verbruikers worden samengenomen voor deze check
+    else if (deviceType === "load" || deviceType === "grid") {
       powerByPhase[phase] += P;
     }
   });
   
-  // Controleer per fase of solar + grid < laadpaal
+  // 8. Controleer per fase of solar + grid < laadpaal (EV)
+  // Dit geeft aan dat er niet genoeg vermogen is voor de EV-lader
   ['L1', 'L2', 'L3'].forEach(phase => {
     if (evPowerByPhase[phase] > 0 && 
         (solarPowerByPhase[phase] + powerByPhase[phase] < evPowerByPhase[phase])) {
@@ -819,18 +840,11 @@ document.getElementById("runChecks").onclick = () => {
       // Zoek de EV-rijen voor deze fase om waarschuwingen toe te voegen
       rowData.forEach(data => {
         const { tr, name, phase: dataPhase } = data;
-        if (dataPhase === phase && 
-            (name.includes(translations[lang].charger) || 
-             name.toLowerCase().includes("charger") || 
-             name.includes("EV "))) {
-          
-          const cel = tr.querySelector(".alert");
-          const warning = translations[lang]?.solar_grid_less_than_ev || 
-                         "De som van grid en solar is kleiner dan het verbruik van de laadpaal";
-          
-          cel.textContent = warning;
-          cel.style.animation = "shake 0.5s";
-          setTimeout(() => cel.style.animation = "", 500);
+        if (dataPhase === phase && getDeviceType(name, lang) === "ev") {
+          const alertCell = tr.querySelector(".alert");
+          alertCell.textContent = translations[lang].solar_grid_less_than_ev;
+          alertCell.style.animation = "shake 0.5s";
+          setTimeout(() => alertCell.style.animation = "", 500);
         }
       });
     }

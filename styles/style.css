@@ -418,9 +418,9 @@ select {
 
 /* Animation for when amperage is flipped */
 @keyframes flipEffect {
-  0% { background-color: #ffffff; }
-  50% { background-color: #ffeb3b; }
-  100% { background-color: #ffffff; }
+  0% { background-color: var(--smappee-white); }
+  50% { background-color: var(--smappee-green); }
+  100% { background-color: var(--smappee-white); }
 }
 
 .I.flipped {
