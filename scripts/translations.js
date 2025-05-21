@@ -49,7 +49,9 @@ const translations = {
     "solar_grid_less_than_ev": "De som van grid en solar is kleiner dan het verbruik van de laadpaal",
     
     // Verbruikers
-    "consumer_types": ["Jacuzzi", "Laadstation", "Lift", "Motor", "Oven", "Pomp", "Sauna", "Warmtepomp", "Zwembad"]
+    "consumer_types": ["Jacuzzi", "Laadstation", "Lift", "Motor", "Oven", "Pomp", "Sauna", "Warmtepomp", "Zwembad"],
+    "direction": "Richting",
+    "flip_clamp": "Klemrichting omdraaien"
   },
   
   en: {
@@ -101,7 +103,9 @@ const translations = {
     "solar_grid_less_than_ev": "Solar and grid power sum is less than EV charger consumption",
     
     // Consumer types
-    "consumer_types": ["Jacuzzi", "Charging station", "Elevator", "Motor", "Oven", "Pump", "Sauna", "Heat pump", "Swimming pool"]
+    "consumer_types": ["Jacuzzi", "Charging station", "Elevator", "Motor", "Oven", "Pump", "Sauna", "Heat pump", "Swimming pool"],
+    "direction": "Direction",
+    "flip_clamp": "Flip clamp direction"
   },
   
   fr: {
@@ -153,6 +157,8 @@ const translations = {
     "solar_grid_less_than_ev": "La somme de la puissance solaire et du réseau est inférieure à la consommation du chargeur EV",
     
     // Types de consommateurs
-    "consumer_types": ["Jacuzzi", "Borne de recharge", "Ascenseur", "Moteur", "Four", "Pompe", "Sauna", "Pompe à chaleur", "Piscine"]
+    "consumer_types": ["Jacuzzi", "Borne de recharge", "Ascenseur", "Moteur", "Four", "Pompe", "Sauna", "Pompe à chaleur", "Piscine"],
+    "direction": "Direction",
+    "flip_clamp": "Inverser la direction"
   }
 };

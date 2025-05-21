@@ -29,6 +29,17 @@ function setLanguage(lang) {
   document.querySelectorAll('[data-i18n]').forEach(element => {
     const key = element.getAttribute('data-i18n');
     if (translations[lang] && translations[lang][key]) {
+      // Special handling for config_title if network type is selected
+      if (key === 'config_title') {
+        const netType = document.getElementById("netType").value;
+        if (netType) {
+          const selectedOption = document.querySelector(`#netType option[value="${netType}"]`);
+          if (selectedOption) {
+            element.textContent = `${translations[lang][key]}: ${selectedOption.textContent}`;
+            return; // Skip default assignment
+          }
+        }
+      }
       element.textContent = translations[lang][key];
     }
   });
@@ -140,16 +151,11 @@ function rebuildEVDetails() {
   const n = parseInt(document.getElementById("evCount").value, 10) || 0;
   const container = document.getElementById("evDetails");
   const previousValues = [];
-  const previousConnValues = [];
   const netType = document.getElementById("netType").value;
   
-  // Bewaar huidige selectiewaarden voor herbouwen
+  // Bewaar huidige selectiewaarden voor herbouwen (alleen voor EV type, niet voor connection)
   document.querySelectorAll("#evDetails [data-role=evType]").forEach(select => {
     previousValues.push(select.value);
-  });
-  
-  document.querySelectorAll("#evDetails [data-role=evConn]").forEach(select => {
-    previousConnValues.push(select.value);
   });
   
   // Wis en herbouw
@@ -158,28 +164,15 @@ function rebuildEVDetails() {
     const div = document.createElement("div");
     const lang = window.currentLanguage || 'nl';
     
-    // Bepaal beschikbare verbindingsopties op basis van nettype
-    let connectionOptions = '';
+    // Determine the connection type based on network type
+    let connectionDisplay = '';
     
     if (netType === "1F") {
-      // Bij 1F net is er maar 1 optie
-      connectionOptions = '<input type="hidden" data-role="evConn" value="1F"><span>1F</span>';
+      connectionDisplay = '<span>1F</span>';
     } else if (netType === "split") {
-      // Bij split phase kunnen alleen 1F of 2F worden gekozen
-      connectionOptions = `
-        <select data-role="evConn">
-          <option value="1F">1F</option>
-          <option value="2F">2F</option>
-        </select>
-      `;
+      connectionDisplay = '<span>2F</span>';
     } else {
-      // Bij 3F (ster of driehoek) kunnen zowel 1F als 3F worden gekozen
-      connectionOptions = `
-        <select data-role="evConn">
-          <option value="1F">1F</option>
-          <option value="3F">3F</option>
-        </select>
-      `;
+      connectionDisplay = '<span>3F</span>';
     }
     
     div.innerHTML = `
@@ -192,28 +185,15 @@ function rebuildEVDetails() {
       </select>
       |
       ${translations[lang].connection}:
-      ${connectionOptions}
+      ${connectionDisplay}
     `;
     container.appendChild(div);
   }
   
-  // Herstel vorige selectiewaarden
+  // Herstel vorige selectiewaarden voor EV type
   document.querySelectorAll("#evDetails [data-role=evType]").forEach((select, index) => {
     if (previousValues[index]) {
       select.value = previousValues[index];
-    }
-  });
-  
-  document.querySelectorAll("#evDetails [data-role=evConn]").forEach((element, index) => {
-    if (previousConnValues[index]) {
-      if (element.tagName === "SELECT") {
-        // Check of de optie bestaat in de nieuwe lijst
-        const optionExists = Array.from(element.options).some(opt => opt.value === previousConnValues[index]);
-        if (optionExists) {
-          element.value = previousConnValues[index];
-        }
-      }
-      // Voor hidden inputs doen we niets extra, die hebben al een vaste waarde
     }
   });
 }
@@ -456,7 +436,8 @@ function buildMeasurementTable() {
     tr.innerHTML = `
         <td>${naam}</td>
         <td></td>
-        <td><input class="I" type="number"/></td>
+        <td class="direction-cell"><button class="flip-clamp" title="${translations[lang].flip_clamp || 'Flip clamp direction'}">⟲</button></td>
+        <td class="amperage-cell"><input class="I" type="number"/></td>
         <td></td>
         <td><input class="P" type="number"/></td>
         <td class="S">–</td>
@@ -470,7 +451,7 @@ function buildMeasurementTable() {
     const phaseSelect = createPhaseSelector(fase, netType);
     phaseCell.appendChild(phaseSelect);
     
-    const voltageCell = tr.querySelector("td:nth-child(4)");
+    const voltageCell = tr.querySelector("td:nth-child(5)");
     const voltageField = createVoltageField(netType, fase);
     voltageCell.appendChild(voltageField);
     
@@ -478,6 +459,35 @@ function buildMeasurementTable() {
     if (isGrid) {
       gridRows[fase] = tr;
     }
+    
+    // Add event listener to the flip clamp button
+    const flipButton = tr.querySelector(".flip-clamp");
+    flipButton.addEventListener("click", function() {
+      const amperageInput = tr.querySelector(".I");
+      if (amperageInput.value) {
+        // Flip the sign of the current value
+        const newValue = -1 * parseFloat(amperageInput.value);
+        amperageInput.value = newValue.toFixed(1);
+        
+        // Apply a quick visual feedback
+        amperageInput.classList.add("flipped");
+        setTimeout(() => amperageInput.classList.remove("flipped"), 500);
+        
+        // Add/remove the inverted class based on the new value
+        if (newValue < 0) {
+          flipButton.classList.add("inverted");
+        } else {
+          flipButton.classList.remove("inverted");
+        }
+        
+        // Update grid values after flipping
+        updateGridValues();
+        // Re-run calculations if they were already run
+        if (document.querySelector("#measTable .S").textContent !== "–") {
+          document.getElementById("runChecks").click();
+        }
+      }
+    });
     
     tbody.appendChild(tr);
     return tr;
@@ -502,7 +512,7 @@ function buildMeasurementTable() {
   const separatorRow = document.createElement("tr");
   separatorRow.classList.add("separator-row");
   separatorRow.innerHTML = `
-    <td colspan="9" class="separator"></td>
+    <td colspan="10" class="separator"></td>
   `;
   tbody.appendChild(separatorRow);
 
@@ -527,22 +537,22 @@ function buildMeasurementTable() {
   if (document.getElementById("hasEV").value === "yes") {
     const evCount = parseInt(document.getElementById("evCount").value);
     const evTypes = document.querySelectorAll("#evDetails [data-role=evType]");
-    const evConns = document.querySelectorAll("#evDetails [data-role=evConn]");
 
     for (let i = 0; i < evCount; i++) {
       // Haal het geselecteerde EV-type op uit de dropdown
       const evType = evTypes[i].value;
       const evName = `${translations[lang].charger} ${i + 1}: ${evType}`;      
-      // Haal het verbindingstype op (1F/2F/3F)
-      const connElement = evConns[i];
-      const connType = connElement.tagName === "SELECT" ? connElement.value : connElement.value || "1F";
       
-      if (connType === "1F") {
+      // For EV chargers, add rows based on network type
+      if (netType === "1F") {
+        // Single-phase network - always add one row with L1
         addRow(evName, "L1");
-      } else if (connType === "2F" && netType === "split") {
+      } else if (netType === "split") {
+        // Split-phase network - always add two rows (L1 and L2)
         addRow(evName, "L1");
         addRow(evName, "L2");
-      } else if (connType === "3F") {
+      } else if (netType === "3F-star" || netType === "3F-delta") {
+        // Three-phase network - always add three rows (L1, L2, L3)
         addRow(evName, "L1");
         addRow(evName, "L2");
         addRow(evName, "L3");
@@ -640,6 +650,20 @@ function updateGridValues() {
       }
     }
   });
+  
+  // Update flip button visual state for all rows
+  document.querySelectorAll("#measTable tr:not(.separator-row)").forEach(row => {
+    const amperageInput = row.querySelector(".I");
+    const flipButton = row.querySelector(".flip-clamp");
+    if (amperageInput && flipButton) {
+      const value = parseFloat(amperageInput.value) || 0;
+      if (value < 0) {
+        flipButton.classList.add("inverted");
+      } else {
+        flipButton.classList.remove("inverted");
+      }
+    }
+  });
 }
 
 // Berekeningen uitvoeren met validatie
@@ -651,7 +675,7 @@ document.getElementById("runChecks").onclick = () => {
   // Controleer op lege velden
   for (let tr of rows) {
     const IInput = tr.querySelector(".I");
-    const voltageCell = tr.querySelector("td:nth-child(4)");
+    const voltageCell = tr.querySelector("td:nth-child(5)"); // Updated from 4 to 5
     const PInput = tr.querySelector(".P");
     
     // Skip this row if it doesn't have the expected inputs
@@ -865,7 +889,33 @@ document.addEventListener('DOMContentLoaded', () => {
 function updateConfigVisibility() {
   const netType = document.getElementById("netType").value;
   const configSections = document.querySelectorAll('.config-section');
+  const selectedNetTypeElement = document.getElementById("selectedNetType");
+  const configTitle = document.querySelector("h1[data-i18n='config_title']");
+  const lang = window.currentLanguage || 'nl';
   
+  // Update the configuration title but don't show network type after the label
+  if (netType) {
+    // Get the selected option's text content
+    const selectedOption = document.querySelector(`#netType option[value="${netType}"]`);
+    if (selectedOption) {
+      // Remove the display of selected network type after the label
+      selectedNetTypeElement.textContent = "";
+      
+      // Update the title to include the network type
+      if (configTitle && translations[lang] && translations[lang].config_title) {
+        configTitle.textContent = `${translations[lang].config_title}: ${selectedOption.textContent}`;
+      }
+    }
+  } else {
+    selectedNetTypeElement.textContent = ""; // Keep this empty
+    
+    // Restore original title
+    if (configTitle && translations[lang] && translations[lang].config_title) {
+      configTitle.textContent = translations[lang].config_title;
+    }
+  }
+  
+  // Rest of the function remains unchanged
   // Toon configuratiesecties alleen als netwerktype is geselecteerd
   configSections.forEach(section => {
     section.hidden = !netType;
@@ -903,57 +953,30 @@ function updateConfigVisibility() {
   }
 }
 
-// Functie om het juiste voltageveld te maken
+// Function to create the appropriate voltage field
 function createVoltageField(networkType, phase) {
+  // Determine the correct voltage based on network type
+  let voltage;
+  
   if (networkType === 'split') {
-    // Voor split phase, maak een dropdown met 120V en 240V opties
-    const select = document.createElement('select');
-    select.className = 'voltage-select';
-    
-    const option120 = document.createElement('option');
-    option120.value = '120';
-    option120.textContent = '120V';
-    
-    const option240 = document.createElement('option');
-    option240.value = '240';
-    option240.textContent = '240V';
-    
-    select.appendChild(option120);
-    select.appendChild(option240);
-    
-    // Selecteer de juiste standaard op basis van fase
-    if (phase === 'L1-N' || phase === 'L2-N') {
-      option120.selected = true;
-    } else if (phase === 'L1-L2') {
-      option240.selected = true;
-    }
-    
-    return select;
+    // For split phase, always use 120V
+    voltage = '120';
   } else {
-    // Voor andere netwerktypes, toon vaste 230V of 400V zoals passend
-    let voltage;
-    if (networkType === '3F-star' && (phase === 'L1-L2' || phase === 'L2-L3' || phase === 'L3-L1')) {
-      voltage = '400';
-    } else {
-      voltage = '230';
-    }
-    
-    const span = document.createElement('span');
-    span.textContent = voltage + 'V';
-    span.dataset.voltage = voltage;
-    return span;
+    // Default for all other cases (1F and 3F configurations)
+    voltage = '230';
   }
+  
+  // Create a span with the fixed voltage value
+  const span = document.createElement('span');
+  span.textContent = voltage + 'V';
+  span.dataset.voltage = voltage;
+  return span;
 }
 
-// Functie om de voltagewaarde te verkrijgen
+// Function to get the voltage value should also be simplified
 function getVoltageValue(cell) {
   const voltageElement = cell.firstChild;
-  
-  if (voltageElement.tagName === 'SELECT') {
-    return voltageElement.value;
-  } else {
-    return voltageElement.dataset.voltage;
-  }
+  return voltageElement.dataset.voltage;
 }
 
 // Function to create phase dropdown selector
@@ -1045,4 +1068,31 @@ function handlePhaseChange(event) {
   
   // Run calculations (regardless of whether they were run before)
   document.getElementById("runChecks").click();
+}
+
+// EV-laders
+if (document.getElementById("hasEV").value === "yes") {
+  const evCount = parseInt(document.getElementById("evCount").value);
+  const evTypes = document.querySelectorAll("#evDetails [data-role=evType]");
+
+  for (let i = 0; i < evCount; i++) {
+    // Haal het geselecteerde EV-type op uit de dropdown
+    const evType = evTypes[i].value;
+    const evName = `${translations[lang].charger} ${i + 1}: ${evType}`;      
+    
+    // For EV chargers, add rows based on network type
+    if (netType === "1F") {
+      // Single-phase network - always add one row with L1
+      addRow(evName, "L1");
+    } else if (netType === "split") {
+      // Split-phase network - always add two rows (L1 and L2)
+      addRow(evName, "L1");
+      addRow(evName, "L2");
+    } else if (netType === "3F-star" || netType === "3F-delta") {
+      // Three-phase network - always add three rows (L1, L2, L3)
+      addRow(evName, "L1");
+      addRow(evName, "L2");
+      addRow(evName, "L3");
+    }
+  }
 }

@@ -25,10 +25,10 @@
           <img src="images/nl-flag.svg" alt="Dutch Flag"> Nederlands
         </button>
         <button class="lang-btn" data-lang="en">
-          <img src="images/en-flag.webp"" alt="English Flag"> English
+          <img src="images/en-flag.webp" alt="English Flag"> English
         </button>
         <button class="lang-btn" data-lang="fr">
-          <img src="images/fr-flag.png"" alt="French Flag"> Français
+          <img src="images/fr-flag.png" alt="French Flag"> Français
         </button>
       </div>
     </div>
@@ -41,14 +41,14 @@
     <!-- Taal selector bovenaan in de hoek -->
     <div class="language-switcher">
       <select id="languageSwitch">
-        <option value="nl">Nederlands</option>
-        <option value="en">English</option>
-        <option value="fr">Français</option>
+        <option value="nl">NL</option>
+        <option value="en">EN</option>
+        <option value="fr">FR</option>
       </select>
     </div>
 
     <!-- Algemene instellingen -->
-    <label><span data-i18n="net_type">Netwerktype</span>:
+    <label><span data-i18n="net_type">Netwerktype</span>: <span id="selectedNetType"></span>
       <select id="netType">
         <option value="" data-i18n="select">-- selecteer --</option>
         <option value="1F">1F 230 V</option>
@@ -110,17 +110,19 @@
   <div id="measure" class="page" hidden>
     <h1 data-i18n="measure_title">Voer Metingen In</h1>
     <table>
+      <!-- Update the table header to match the new column order -->
       <thead>
         <tr>
-          <th data-i18n="device">Apparaat</th>
+          <th data-i18n="device">Toestel</th>
           <th data-i18n="phase">Fase</th>
-          <th>I&nbsp;(A)</th>
-          <th>U&nbsp;(V)</th>
-          <th>P&nbsp;(W)</th>
-          <th>S&nbsp;(VA)</th>
-          <th>PF</th>
-          <th>Q&nbsp;(VAR)</th>
-          <th data-i18n="warning">Waarschuwing</th>
+          <th data-i18n="direction">Richting</th>
+          <th data-i18n="amperage">I (A)</th>
+          <th data-i18n="voltage">U (V)</th>
+          <th data-i18n="real_power">P (W)</th>
+          <th data-i18n="apparent_power">S (VA)</th>
+          <th data-i18n="power_factor">PF</th>
+          <th data-i18n="reactive_power">Q (VAR)</th>
+          <th data-i18n="warnings">Waarschuwingen</th>
         </tr>
       </thead>
       <tbody id="measTable"></tbody>

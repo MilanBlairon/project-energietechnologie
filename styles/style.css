@@ -413,3 +413,60 @@ select {
   background-color: var(--border-color);
   opacity: 0.5;
 }
+
+/* Style for the flip clamp button */
+
+/* Animation for when amperage is flipped */
+@keyframes flipEffect {
+  0% { background-color: #ffffff; }
+  50% { background-color: #ffeb3b; }
+  100% { background-color: #ffffff; }
+}
+
+.I.flipped {
+  animation: flipEffect 0.5s;
+}
+
+.flip-clamp:hover {
+  border-color: var(--smappee-green);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+
+.flip-clamp:active {
+  transform: translateY(1px);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+}
+
+/* Styling for flip-clamp button content */
+.flip-clamp {
+  min-width: 100px;  /* Increase width to fit text better */
+  height: 40px;
+  border-radius: 30px; /* Match the border-radius of other buttons */
+  padding: 0 15px;   /* Add horizontal padding */
+  margin: 0;         /* Remove auto margin to align left */
+  font-size: 16px;
+  line-height: 1;
+  background-color: var(--smappee-white);
+  border: 2px solid var(--smappee-dark-gray);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  display: flex;
+  justify-content: center; /* This keeps the text centered within the button */
+  align-items: center;
+}
+
+/* When the clamp direction is inverted (active state) */
+.flip-clamp.inverted {
+  background-color: var(--smappee-green);
+  color: var(--smappee-white);
+  border-color: var(--smappee-green);
+}
+
+/* You might need to add this to the container that holds the button */
+.direction-cell {
+  text-align: left;    /* Changed from center to left for container alignment */
+  vertical-align: middle;
+  padding: 12px 15px;
+}
