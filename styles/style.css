@@ -1,5 +1,21 @@
+/*
+  Project: SmappeeSim | Webapp by Milan Blairon
+  Doel: Gemaakt als optioneel project voor het vak Webdevelopment 2 
+        (lector R. Reinenbergh), richting bachelor Elektronica-ICT
+        aan VIVES Hogeschool Kortrijk.
+
+  Context: Deze webapp werd ontwikkeld als hulp voor twee studenten Energietechnologie 
+           die hun bachelorproef uitvoeren bij Smappee. 
+           Alle logo’s en merkmaterialen werden met toestemming van de studenten gebruikt. 
+           Milan Blairon is niet aansprakelijk voor gebruik van deze elementen buiten deze context.
+
+  Auteursrecht: © 2025 Milan Blairon. Alle rechten voorbehouden.
+                Licentie: MIT. Deze code mag door Smappee en derden gebruikt worden mits duidelijke naamsvermelding.
+
+  Contact: r0981022@student.vives.be
+*/
+
 :root {
-  /* New Smappee color palette */
   --smappee-green: #99c031;       /* RGB 153 192 49 - groen */
   /*--smappee-white: #fffaf6;  */   /* RGB 255 250 246 - wit */
   --smappee-white: #ffffff;       /* RGB 255 255 255 - wit */
@@ -9,7 +25,6 @@
   --smappee-medium-gray: #e1d7d2; /* RGB 225 215 210 - grijs */
   --smappee-dark-gray: #333334;   /* RGB 51 51 52 - donkergrijs */
   
-  /* Functional color mapping */
   --bg-primary: var(--smappee-green-gray);
   --bg-secondary: var(--smappee-light-gray);
   --bg-tertiary: var(--smappee-medium-gray);
@@ -414,9 +429,6 @@ select {
   opacity: 0.5;
 }
 
-/* Style for the flip clamp button */
-
-/* Animation for when amperage is flipped */
 @keyframes flipEffect {
   0% { background-color: var(--smappee-white); }
   50% { background-color: var(--smappee-green); }
@@ -438,13 +450,12 @@ select {
   box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
 }
 
-/* Styling for flip-clamp button content */
 .flip-clamp {
-  min-width: 100px;  /* Increase width to fit text better */
+  min-width: 100px;  
   height: 40px;
-  border-radius: 30px; /* Match the border-radius of other buttons */
-  padding: 0 15px;   /* Add horizontal padding */
-  margin: 0;         /* Remove auto margin to align left */
+  border-radius: 30px; 
+  padding: 0 15px; 
+  margin: 0;      
   font-size: 16px;
   line-height: 1;
   background-color: var(--smappee-white);
@@ -453,20 +464,18 @@ select {
   transition: all 0.2s ease;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   display: flex;
-  justify-content: center; /* This keeps the text centered within the button */
+  justify-content: center; 
   align-items: center;
 }
 
-/* When the clamp direction is inverted (active state) */
 .flip-clamp.inverted {
   background-color: var(--smappee-green);
   color: var(--smappee-white);
   border-color: var(--smappee-green);
 }
 
-/* You might need to add this to the container that holds the button */
 .direction-cell {
-  text-align: left;    /* Changed from center to left for container alignment */
+  text-align: left;   
   vertical-align: middle;
   padding: 12px 15px;
 }
