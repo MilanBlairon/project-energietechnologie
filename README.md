@@ -49,9 +49,24 @@ Als PWA kan SmappeeSim direct worden geïnstalleerd vanuit de browser:
 
 ## Ontwikkeld door
 
-De volledige applicatie is ontworpen en ontwikkeld door Milan Blairon.
-Optionele opdracht Webdevelopment 2, in opdracht van studenten Energietechnologie. Gebaseerd op de werking van hun bestaande Excel-systeem.
+De volledige applicatie is ontworpen en ontwikkeld door Milan Blairon.  
+Optionele opdracht voor het vak **Webdevelopment 2** (lector **R. Reinenbergh**)  
+richting **Bachelor Elektronica-ICT** aan **VIVES Hogeschool Kortrijk**.  
+In samenwerking met twee studenten **Energietechnologie** die hun bachelorproef uitvoeren bij **Smappee**.
 
 ---
 
-© 2025 Milan Blairon - Hogeschool VIVES
+## 📄 Licentie & Auteursrecht
+
+© 2025 Milan Blairon. Alle rechten voorbehouden.  
+Logo’s en merkmaterialen zijn opgenomen met toestemming van de betrokken studenten.  
+**Milan Blairon is niet aansprakelijk** voor enig (her)gebruik van deze elementen buiten deze context.
+
+Deze applicatie is gelicenseerd onder de **MIT-licentie**:
+
+> Deze software mag vrij worden gebruikt, gekopieerd, gewijzigd en verspreid voor elk doel, inclusief commercieel gebruik, op voorwaarde dat de oorspronkelijke auteur (Milan Blairon) wordt vermeld.
+
+Gebruik door **Smappee** en andere derden is toegestaan mits duidelijke naamsvermelding.
+
+Voor vragen of toestemming:
+📧 r0981022@student.vives.be
