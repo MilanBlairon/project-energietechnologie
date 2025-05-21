@@ -10,7 +10,7 @@ const translations = {
     "check": "Controleer",
     
     // Config pagina
-    "config_title": "1. Configuratie",
+    "config_title": "Configuratie",
     "net_type": "Netwerktype",
     "has_solar": "Zonnepanelen",
     "solar_count": "Aantal omvormers",
@@ -27,7 +27,7 @@ const translations = {
     "connection": "Aansluiting",
     
     // Meetpagina
-    "measure_title": "2. Voer Metingen In",
+    "measure_title": "Voer Metingen In",
     "grid": "Net",
     "device": "Apparaat",
     "phase": "Fase",
@@ -62,7 +62,7 @@ const translations = {
     "check": "Check",
     
     // Config page
-    "config_title": "1. Configuration",
+    "config_title": "Configuration",
     "net_type": "Network type",
     "has_solar": "Solar panels",
     "solar_count": "Number of inverters",
@@ -79,7 +79,7 @@ const translations = {
     "connection": "Connection",
     
     // Measurement page
-    "measure_title": "2. Enter Measurements",
+    "measure_title": "Enter Measurements",
     "grid": "Grid",
     "device": "Device",
     "phase": "Phase",
@@ -114,7 +114,7 @@ const translations = {
     "check": "Vérifier",
     
     // Page de configuration
-    "config_title": "1. Configuration",
+    "config_title": "Configuration",
     "net_type": "Type de réseau",
     "has_solar": "Panneaux solaires",
     "solar_count": "Nombre d'onduleurs",
@@ -131,7 +131,7 @@ const translations = {
     "connection": "Connexion",
     
     // Page de mesure
-    "measure_title": "2. Saisir les mesures",
+    "measure_title": "Saisir les mesures",
     "grid": "Réseau",
     "device": "Appareil",
     "phase": "Phase",

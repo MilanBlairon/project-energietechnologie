@@ -1,7 +1,8 @@
 :root {
   /* New Smappee color palette */
   --smappee-green: #99c031;       /* RGB 153 192 49 - groen */
-  --smappee-white: #fffaf6;       /* RGB 255 250 246 - wit */
+  /*--smappee-white: #fffaf6;  */   /* RGB 255 250 246 - wit */
+  --smappee-white: #ffffff;       /* RGB 255 255 255 - wit */
   --smappee-gray: #717171;        /* RGB 113 113 113 - grijs */
   --smappee-light-green: #cce3dd; /* RGB 204 227 221 - groen licht */
   --smappee-light-gray: #f2f2f2;  /* RGB 242 242 242 - lichtgrijs */
@@ -91,7 +92,7 @@ h1 {
 
 .language-container {
   text-align: center;
-  background: var(--bg-secondary);
+  background: var(--smappee-green);
   padding: 2rem;
   border-radius: 10px;
   box-shadow: 0 5px 15px var(--shadow-color);
@@ -103,6 +104,7 @@ h1 {
 .language-container h1 {
   margin-bottom: 2rem;
   border-bottom: none;
+  color: var(--smappee-white);
 }
 
 .language-buttons {
@@ -121,9 +123,9 @@ h1 {
 
 button {
   padding: 10px 20px;
-  color: white;
-  border: 2px solid #7a9927;
-  background-color: var(--accent-color);
+  color: var(--smappee-dark-gray);
+  border: 2px solid var(--smappee-dark-gray);
+  background-color: var(--smappee-white);
   border-radius: 30px;
   cursor: pointer;
   font-size: 1rem;
@@ -143,7 +145,7 @@ button {
 }
 
 button:hover {
-  background-color: var(--accent-hover);
+  border-color: var(--smappee-green);
   transform: translateY(-2px);
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
 }
@@ -154,13 +156,15 @@ button:active {
 }
 
 button#backConfig {
-  color: var(--text-primary);
-  border-color: var(--smappee-gray);
+  color: var(--smappee-dark-gray);
+  border-color: var(--smappee-dark-gray);
+  background-color: var(--smappee-white);
 }
 
 button#backConfig:hover {
-  background-color: var(--border-color);
-  color: var(--smappee-white);
+  border-color: var(--smappee-green);
+  color: var(--smappee-dark-gray);
+  background-color: var(--smappee-white);
 }
 
 .lang-btn {
@@ -170,19 +174,19 @@ button#backConfig:hover {
   justify-content: center;
   padding: 14px 20px;
   border-radius: 30px;
-  background-color: var(--smappee-dark-gray);
-  border: 2px solid var(--smappee-gray);
+  background-color: var(--smappee-white);
+  border: 2px solid var(--smappee-dark-gray);
   cursor: pointer;
   font-size: 1.1rem;
   transition: all 0.2s ease;
-  color: white;
+  color: var(--smappee-dark-gray);
   width: 100%;
 }
 
 .lang-btn:hover {
-  background-color: var(--smappee-green);
+  border-color: var(--smappee-green);
+  background-color: var(--smappee-white);
   color: var(--smappee-dark-gray);
-  border-color: var(--smappee-gray);
   transform: translateY(-2px);
 }
 
@@ -192,20 +196,27 @@ button#backConfig:hover {
 }
 
 select, input {
-  background-color: var(--input-bg);
-  color: var(--text-primary);
+  background-color: var(--smappee-white);
+  color: var(--smappee-dark-gray);
   padding: 10px 12px;
-  border: 1px solid var(--border-color);
+  border: 2px solid var(--smappee-dark-gray);
   border-radius: 30px;
   font-size: 1rem;
-  transition: border-color 0.2s, box-shadow 0.2s;
+  transition: all 0.2s ease;
   min-width: 150px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 select:focus, input:focus {
   outline: none;
-  border-color: var(--accent-color);
+  border-color: var(--smappee-green);
   box-shadow: 0 0 0 2px rgba(153, 192, 49, 0.3);
+}
+
+select:hover, input:hover {
+  border-color: var(--smappee-green);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
 }
 
 input[type="number"] {
@@ -350,33 +361,45 @@ tbody tr:hover {
 
 select {
   appearance: none;
-  background-image: url("data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%23717171%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-12.9%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2012.9l128%20127.9c3.6%203.6%207.8%205.4%2012.8%205.4s9.2-1.8%2012.8-5.4L287%2095c3.5-3.5%205.4-7.8%205.4-12.8%200-5-1.9-9.2-5.5-12.8z%22%2F%3E%3C%2Fsvg%3E");
+  background-image: url("data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%23333334%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-12.9%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2012.9l128%20127.9c3.6%203.6%207.8%205.4%2012.8%205.4s9.2-1.8%2012.8-5.4L287%2095c3.5-3.5%205.4-7.8%205.4-12.8%200-5-1.9-9.2-5.5-12.8z%22%2F%3E%3C%2Fsvg%3E");
   background-repeat: no-repeat;
   background-position: right 10px center;
   background-size: 12px;
   padding-right: 30px;
   border-radius: 30px;
   padding: 10px 20px;
+  background-color: var(--smappee-white);
+  border: 2px solid var(--smappee-dark-gray);
 }
 
 #languageSwitch {
-  background-color: var(--bg-tertiary);
-  border-color: var(--border-color);
+  background-color: var(--smappee-white);
+  border: 2px solid var(--smappee-dark-gray);
   padding: 8px 30px 8px 15px;
   border-radius: 30px;
-  border: 2px solid var(--smappee-gray);
+  color: var(--smappee-dark-gray);
+}
+
+#languageSwitch:hover {
+  border-color: var(--smappee-green);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
 }
 
 .language-switcher select {
   appearance: none;
-  background-image: url("data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%23717171%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-12.9%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2012.9l128%20127.9c3.6%203.6%207.8%205.4%2012.8%205.4s9.2-1.8%2012.8-5.4L287%2095c3.5-3.5%205.4-7.8%205.4-12.8%200-5-1.9-9.2-5.5-12.8z%22%2F%3E%3C%2Fsvg%3E");
+  background-image: url("data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%23333334%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-12.9%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2012.9l128%20127.9c3.6%203.6%207.8%205.4%2012.8%205.4s9.2-1.8%2012.8-5.4L287%2095c3.5-3.5%205.4-7.8%205.4-12.8%200-5-1.9-9.2-5.5-12.8z%22%2F%3E%3C%2Fsvg%3E");
   background-position: right 15px center;
   border-radius: 30px;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   transition: all 0.2s ease;
+  background-color: var(--smappee-white);
+  color: var(--smappee-dark-gray);
+  border: 2px solid var(--smappee-dark-gray);
 }
 
 .language-switcher select:hover {
+  border-color: var(--smappee-green);
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
   transform: translateY(-2px);
 }

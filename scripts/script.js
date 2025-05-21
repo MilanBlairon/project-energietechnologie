@@ -223,6 +223,7 @@ function rebuildConsumerDetails() {
   const container = document.getElementById("loadDetails");
   const previousTypeValues = [];
   const previousConnValues = [];
+  const netType = document.getElementById("netType").value;
   
   // Bewaar huidige selectiewaarden voor herbouwen
   document.querySelectorAll("#loadDetails [data-role=loadType]").forEach(select => {
@@ -235,7 +236,46 @@ function rebuildConsumerDetails() {
   // Wis en herbouw
   container.innerHTML = "";
   for (let i = 1; i <= n; i++) {
-    container.appendChild(createConsumerDetail(i));
+    const div = document.createElement("div");
+    const lang = window.currentLanguage || 'nl';
+    
+    // Gebruik de verbruikerstypes van de huidige taal
+    const consumerTypes = translations[lang].consumer_types;
+    
+    // Bepaal beschikbare verbindingsopties op basis van nettype
+    let connectionOptions = '';
+    
+    if (netType === "1F") {
+      // Bij 1F net is er maar 1 optie
+      connectionOptions = '<input type="hidden" data-role="loadConn" value="1F"><span>1F</span>';
+    } else if (netType === "split") {
+      // Bij split phase kunnen alleen 1F of 2F worden gekozen
+      connectionOptions = `
+        <select data-role="loadConn">
+          <option value="1F">1F</option>
+          <option value="2F">2F</option>
+        </select>
+      `;
+    } else {
+      // Bij 3F (ster of driehoek) kunnen zowel 1F als 3F worden gekozen
+      connectionOptions = `
+        <select data-role="loadConn">
+          <option value="1F">1F</option>
+          <option value="3F">3F</option>
+        </select>
+      `;
+    }
+    
+    div.innerHTML = `
+      ${translations[lang].consumer} ${i}:
+      <select data-role="loadType">
+        ${consumerTypes.map(t => `<option>${t}</option>`).join("")}
+      </select>
+      |
+      ${translations[lang].connection}:
+      ${connectionOptions}
+    `;
+    container.appendChild(div);
   }
   
   // Herstel vorige selectiewaarden
@@ -251,9 +291,16 @@ function rebuildConsumerDetails() {
     }
   });
   
-  document.querySelectorAll("#loadDetails [data-role=loadConn]").forEach((select, index) => {
+  document.querySelectorAll("#loadDetails [data-role=loadConn]").forEach((element, index) => {
     if (previousConnValues[index]) {
-      select.value = previousConnValues[index];
+      if (element.tagName === "SELECT") {
+        // Check of de optie bestaat in de nieuwe lijst
+        const optionExists = Array.from(element.options).some(opt => opt.value === previousConnValues[index]);
+        if (optionExists) {
+          element.value = previousConnValues[index];
+        }
+      }
+      // Voor hidden inputs doen we niets extra, die hebben al een vaste waarde
     }
   });
 }
@@ -308,33 +355,10 @@ bindCount("evCount", "evDetails", i => {
   return document.createElement("div"); // Dummy return aangezien rebuildEVDetails de eigenlijke aanmaak afhandelt
 });
 
-// Functie om verbruikersdetails aan te maken met juiste taal
-function createConsumerDetail(i) {
-  const lang = window.currentLanguage || 'nl';
-  const div = document.createElement("div");
-  
-  // Gebruik de verbruikerstypes van de huidige taal
-  const consumerTypes = translations[lang].consumer_types;
-  
-  div.innerHTML = `
-      ${translations[lang].consumer} ${i}:
-      <select data-role="loadType">
-        ${consumerTypes.map(t => `<option>${t}</option>`).join("")}
-      </select>
-      |
-      ${translations[lang].connection}:
-      <select data-role="loadConn">
-        <option value="1F">1F</option>
-        <option value="3F">3F</option>
-      </select>
-    `;
-  return div;
-}
-
 // Verbruikers
 bindCount("loadCount", "loadDetails", i => {
   rebuildConsumerDetails();
-  return document.createElement("div"); // Dummy return aangezien rebuildConsumerDetails de eigenlijke aanmaak afhandelt
+  return document.createElement("div"); // Dummy return since rebuildConsumerDetails handles the actual creation
 });
 
 // Navigatie met validatie
@@ -417,11 +441,21 @@ function buildMeasurementTable() {
   const netType = document.getElementById("netType").value;
   const lang = window.currentLanguage || 'nl';
 
-  function addRow(naam, fase) {
+  // We'll track all amperage values by phase to calculate grid net values
+  const phaseAmperages = {
+    L1: { solar: 0, load: 0, ev: 0 },
+    L2: { solar: 0, load: 0, ev: 0 },
+    L3: { solar: 0, load: 0, ev: 0 }
+  };
+  
+  // Grid rows reference to update later
+  const gridRows = {};
+
+  function addRow(naam, fase, isGrid = false) {
     const tr = document.createElement("tr");
     tr.innerHTML = `
         <td>${naam}</td>
-        <td>${fase}</td>
+        <td></td>
         <td><input class="I" type="number"/></td>
         <td></td>
         <td><input class="P" type="number"/></td>
@@ -430,10 +464,23 @@ function buildMeasurementTable() {
         <td class="Q">–</td>
         <td class="alert"></td>
       `;
+    
+    // Add phase dropdown instead of static text
+    const phaseCell = tr.querySelector("td:nth-child(2)");
+    const phaseSelect = createPhaseSelector(fase, netType);
+    phaseCell.appendChild(phaseSelect);
+    
     const voltageCell = tr.querySelector("td:nth-child(4)");
     const voltageField = createVoltageField(netType, fase);
     voltageCell.appendChild(voltageField);
+    
+    // If this is a grid row, store reference for later update
+    if (isGrid) {
+      gridRows[fase] = tr;
+    }
+    
     tbody.appendChild(tr);
+    return tr;
   }
 
   // Add Grid connection rows at the top of the table
@@ -441,14 +488,14 @@ function buildMeasurementTable() {
   
   // Add appropriate phases based on network type
   if (netType === "1F") {
-    addRow(gridName, "L1");
+    addRow(gridName, "L1", true);
   } else if (netType === "split") {
-    addRow(gridName, "L1");
-    addRow(gridName, "L2");
+    addRow(gridName, "L1", true);
+    addRow(gridName, "L2", true);
   } else if (netType === "3F-star" || netType === "3F-delta") {
-    addRow(gridName, "L1");
-    addRow(gridName, "L2");
-    addRow(gridName, "L3");
+    addRow(gridName, "L1", true);
+    addRow(gridName, "L2", true);
+    addRow(gridName, "L3", true);
   }
   
   // Add a separator row after the grid section
@@ -459,7 +506,7 @@ function buildMeasurementTable() {
   `;
   tbody.appendChild(separatorRow);
 
-  // Omvormers
+  // Omvormers (Solar)
   if (document.getElementById("hasSolar").value === "yes") {
     document.querySelectorAll("#solarDetails [data-role=solarType]").forEach((element, i) => {
       const naam = `${translations[lang].inverter} ${i + 1}`;
@@ -485,8 +532,7 @@ function buildMeasurementTable() {
     for (let i = 0; i < evCount; i++) {
       // Haal het geselecteerde EV-type op uit de dropdown
       const evType = evTypes[i].value;
-      const evName = `${translations[lang].charger} ${i + 1}: ${evType}`;
-      
+      const evName = `${translations[lang].charger} ${i + 1}: ${evType}`;      
       // Haal het verbindingstype op (1F/2F/3F)
       const connElement = evConns[i];
       const connType = connElement.tagName === "SELECT" ? connElement.value : connElement.value || "1F";
@@ -523,10 +569,82 @@ function buildMeasurementTable() {
       }
     }
   }
+  
+  // Add event listeners to all input fields to update grid values
+  document.querySelectorAll("#measTable tr:not(.separator-row)").forEach(row => {
+    if (row.cells[0].textContent !== gridName) { // Skip grid rows
+      const amperageInput = row.querySelector(".I");
+      // Add event listener to each device amperage input
+      amperageInput.addEventListener("input", updateGridValues);
+    }
+  });
+}
+
+// Move the updateGridValues function outside buildMeasurementTable to make it globally accessible
+
+// Global helper to determine device type from name
+function getDeviceType(name, lang) {
+  if (name.includes(translations[lang].inverter) || name.toLowerCase().includes("inverter")) {
+    return "solar";
+  } else if (name.includes(translations[lang].charger) || name.toLowerCase().includes("charger") || name.includes("EV ")) {
+    return "ev";
+  } else if (name === translations[lang].grid || name.toLowerCase() === "grid") {
+    return "grid";
+  } else {
+    return "load";
+  }
+}
+
+// Global function to update grid values whenever a device input changes or phase is swapped
+function updateGridValues() {
+  const lang = window.currentLanguage || 'nl';
+  const gridName = translations[lang].grid || "Grid";
+  
+  // Reset tracking of amperages by phase and device type
+  const phaseAmperages = {
+    L1: { solar: 0, load: 0, ev: 0 },
+    L2: { solar: 0, load: 0, ev: 0 },
+    L3: { solar: 0, load: 0, ev: 0 }
+  };
+  
+  // Collect all device amperages by phase and type
+  document.querySelectorAll("#measTable tr:not(.separator-row)").forEach(row => {
+    const deviceName = row.cells[0].textContent;
+    if (deviceName !== gridName) {  // Skip grid rows
+      const phaseSelect = row.querySelector(".phase-select");
+      const phase = phaseSelect ? phaseSelect.value : "L1"; // Get selected phase
+      const amperageInput = row.querySelector(".I");
+      const amperage = parseFloat(amperageInput.value) || 0;
+      const deviceType = getDeviceType(deviceName, lang);
+      
+      if (phaseAmperages[phase] && deviceType !== "grid") {
+        phaseAmperages[phase][deviceType] += amperage;
+      }
+    }
+  });
+  
+  // Find and update grid rows
+  document.querySelectorAll("#measTable tr").forEach(row => {
+    const deviceName = row.cells[0].textContent;
+    if (deviceName === gridName) {
+      const phaseSelect = row.querySelector(".phase-select");
+      const phase = phaseSelect ? phaseSelect.value : "L1";
+      
+      if (phaseAmperages[phase]) {
+        // Grid = EV + Load - Solar (negative means excess power going back to grid)
+        const gridAmperage = phaseAmperages[phase].ev + phaseAmperages[phase].load - phaseAmperages[phase].solar;
+        const gridInput = row.querySelector(".I");
+        if (gridInput) {
+          gridInput.value = gridAmperage.toFixed(1);
+        }
+      }
+    }
+  });
 }
 
 // Berekeningen uitvoeren met validatie
 document.getElementById("runChecks").onclick = () => {
+  
   const rows = Array.from(document.querySelectorAll("#measTable tr:not(.separator-row)"));
   const lang = window.currentLanguage || 'nl';
 
@@ -557,7 +675,8 @@ document.getElementById("runChecks").onclick = () => {
     })
     .map(tr => {
       const name = tr.querySelector("td:nth-child(1)").textContent;
-      const phase = tr.querySelector("td:nth-child(2)").textContent;
+      const phaseSelect = tr.querySelector(".phase-select");
+      const phase = phaseSelect ? phaseSelect.value : "L1"; // Get selected phase
       const I = parseFloat(tr.querySelector(".I").value);
       const U = parseFloat(getVoltageValue(tr.querySelector("td:nth-child(4)")));
       const P = parseFloat(tr.querySelector(".P").value);
@@ -837,8 +956,93 @@ function getVoltageValue(cell) {
   }
 }
 
-// Vervang het bestaande stijlblok onderaan je bestand met deze bijgewerkte versie
-const style = document.createElement('style');
-style.textContent = `
-`;
-document.head.appendChild(style);
+// Function to create phase dropdown selector
+function createPhaseSelector(currentPhase, networkType) {
+  const select = document.createElement('select');
+  select.className = 'phase-select';
+  select.dataset.originalPhase = currentPhase; // Store original phase for reference
+  select.dataset.currentPhase = currentPhase; // Also track current phase for swapping
+  
+  // Add appropriate phases based on network type
+  let availablePhases = [];
+  
+  if (networkType === "1F") {
+    availablePhases = ["L1"];
+  } else if (networkType === "split") {
+    availablePhases = ["L1", "L2"];
+  } else if (networkType === "3F-star" || networkType === "3F-delta") {
+    availablePhases = ["L1", "L2", "L3"];
+  }
+  
+  availablePhases.forEach(phase => {
+    const option = document.createElement('option');
+    option.value = phase;
+    option.textContent = phase;
+    if (phase === currentPhase) {
+      option.selected = true;
+    }
+    select.appendChild(option);
+  });
+  
+  // Add change event listener to handle phase swaps
+  select.addEventListener('change', handlePhaseChange);
+  
+  return select;
+}
+
+// Function to handle phase change events
+function handlePhaseChange(event) {
+  const select = event.target;
+  const newPhase = select.value;
+  const oldPhase = select.dataset.currentPhase || select.dataset.originalPhase;
+  const row = select.closest('tr');
+  const deviceName = row.cells[0].textContent;
+  const lang = window.currentLanguage || 'nl';
+  const gridName = translations[lang].grid || "Grid";
+  const netType = document.getElementById("netType").value;
+  
+  // Store the current value to track changes
+  select.dataset.currentPhase = newPhase;
+  
+  // Find other rows with the same device name (for multi-phase devices)
+  const sameDeviceRows = Array.from(document.querySelectorAll("#measTable tr")).filter(r => 
+    r !== row && r.cells[0].textContent === deviceName
+  );
+  
+  // Find the row that has the phase we want to switch to
+  const rowWithTargetPhase = sameDeviceRows.find(r => {
+    const phaseSelect = r.querySelector(".phase-select");
+    return phaseSelect && phaseSelect.value === newPhase;
+  });
+  
+  // If we found a row with the target phase, swap phases between them
+  if (rowWithTargetPhase) {
+    const otherPhaseSelect = rowWithTargetPhase.querySelector(".phase-select");
+    
+    // Temporarily remove event listeners to prevent recursion
+    otherPhaseSelect.removeEventListener('change', handlePhaseChange);
+    otherPhaseSelect.value = oldPhase;
+    otherPhaseSelect.dataset.currentPhase = oldPhase;
+    
+    // Update voltage field for the other row
+    const otherVoltageCell = rowWithTargetPhase.querySelector("td:nth-child(4)");
+    otherVoltageCell.innerHTML = '';
+    const otherVoltageField = createVoltageField(netType, oldPhase);
+    otherVoltageCell.appendChild(otherVoltageField);
+    
+    // Re-attach event listener
+    otherPhaseSelect.addEventListener('change', handlePhaseChange);
+  }
+  
+  // Update voltage field for the current row
+  const voltageCell = row.querySelector("td:nth-child(4)");
+  voltageCell.innerHTML = '';
+  const newVoltageField = createVoltageField(netType, newPhase);
+  voltageCell.appendChild(newVoltageField);
+  
+  // Update grid values to reflect phase changes
+  updateGridValues();
+  
+  // Run calculations (regardless of whether they were run before)
+  document.getElementById("runChecks").click();
+}
