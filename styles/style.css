@@ -360,17 +360,160 @@ tbody tr:hover {
     padding: 1rem;
   }
   
+  /* Transform table layout on mobile */
   table {
+    width: 100%;
     display: block;
-    overflow-x: auto;
+    border-radius: 0;
+    box-shadow: none;
+    background-color: transparent;
+    border: none;
+    margin: 0 0 1.5rem 0;
   }
   
-  td, th {
-    padding: 8px 10px;
+  thead {
+    display: none; /* Keep headers hidden on mobile */
   }
   
-  .language-container {
-    padding: 1.5rem;
+  tbody {
+    display: block;
+  }
+  
+  tr {
+    display: block;
+    margin-bottom: 1rem;
+    background-color: var(--bg-secondary);
+    border-radius: 8px;
+    box-shadow: 0 2px 8px var(--shadow-color);
+    overflow: hidden;
+  }
+  
+  td {
+    display: flex;
+    padding: 10px 15px;
+    border-bottom: 1px solid rgba(113, 113, 113, 0.1);
+    align-items: center;
+    justify-content: space-between; /* Space between label and value */
+  }
+  
+  td:last-child {
+    border-bottom: none;
+  }
+  
+  /* Add section headers for each device type in the table */
+  tr td[data-section] {
+    position: relative;
+    padding-top: 40px; /* Make room for section header */
+  }
+  
+  tr td[data-section]::before {
+    content: attr(data-section-name);
+    display: block;
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 30px;
+    background-color: var(--smappee-dark-gray);
+    color: white;
+    font-weight: 500;
+    padding: 5px 15px;
+    font-size: 0.85rem;
+    text-transform: uppercase;
+    display: flex;
+    align-items: center;
+  }
+  
+  /* Colorize section headers based on type */
+  tr td[data-section="grid"]::before {
+    background-color: var(--smappee-dark-gray);
+  }
+  
+  tr td[data-section="solar"]::before {
+    background-color: var(--success-color);
+  }
+  
+  tr td[data-section="ev"]::before {
+    background-color: var(--accent-color);
+  }
+  
+  tr td[data-section="load"]::before {
+    background-color: var(--text-secondary);
+  }
+  
+  /* Improve the data-label visibility and styling */
+  td::before {
+    content: attr(data-label);
+    font-weight: 600;
+    flex: 1;
+    padding-right: 10px;
+    text-transform: uppercase;
+    font-size: 0.75rem;
+    color: var(--text-secondary);
+    letter-spacing: 0.5px;
+    min-width: 120px;
+    display: inline-block; /* Make sure it displays */
+  }
+  
+  /* First cell (device name) styling */
+  tr td:first-child {
+    background-color: rgba(153, 192, 49, 0.1);
+    font-weight: 600;
+    font-size: 1.1rem;
+  }
+  
+  /* Only first cell in a row (device name) should hide its label */
+  tr td:first-child::before {
+    content: "";
+    display: none;
+  }
+  
+  /* Hide separator rows on mobile */
+  tr.separator-row {
+    display: none;
+  }
+  
+  /* Make buttons better fit the mobile layout */
+  td .flip-clamp {
+    margin-left: auto;
+  }
+  
+  /* Input fields in tables should be more responsive */
+  td input {
+    max-width: 100px;
+    margin-left: auto;
+  }
+  
+  /* Ensure the direction cell with the flip button is properly spaced */
+  td.direction-cell {
+    padding-right: 15px;
+  }
+  
+  .mobile-label {
+    display: inline-block;
+    font-weight: bold;
+    margin-right: 5px;
+    min-width: 50%;
+  }
+  
+  table td {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px;
+    border-bottom: 1px solid #eee;
+  }
+  
+  table td:first-child {
+    font-weight: bold;
+    background-color: #f5f5f5;
+  }
+  
+  table td input, 
+  table td select, 
+  table td span:not(.mobile-label) {
+    text-align: right;
+    margin-left: auto;
   }
 }
 

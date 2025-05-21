@@ -1145,8 +1145,6 @@ if (document.getElementById("hasEV").value === "yes") {
   }
 }
 
-// Add after the translations initialization
-
 // Default amperage values for devices by network type
 const defaultDeviceAmperages = {
   // For 1F and split-phase networks
@@ -1234,3 +1232,122 @@ function getDefaultAmperage(deviceName, netType) {
   
   return null; // No default found
 }
+
+// Add this to your JavaScript file to make the responsive table work properly
+function setupResponsiveTables() {
+  const tables = document.querySelectorAll('table');
+  const lang = window.currentLanguage || 'nl';
+  
+  tables.forEach(table => {
+    // Define translations for common table headers
+    const headerTranslations = {
+      "Apparaat": translations[lang]?.device || "Device",
+      "Fase": translations[lang]?.phase || "Phase",
+      "Richting": translations[lang]?.direction || "Direction",
+      "I (A)": translations[lang]?.current || "Current (A)",
+      "U (V)": translations[lang]?.voltage || "Voltage (V)",
+      "P (W)": translations[lang]?.active_power || "Active Power (W)",
+      "S (VA)": translations[lang]?.apparent_power || "Apparent Power (VA)",
+      "PF": translations[lang]?.power_factor || "Power Factor",
+      "Q (VAr)": translations[lang]?.reactive_power || "Reactive Power (VAr)",
+      "Status": translations[lang]?.status || "Status"
+    };
+    
+    // Define section translations
+    const sectionTranslations = {
+      "grid": translations[lang]?.grid_section || "Grid",
+      "solar": translations[lang]?.solar_section || "Solar Inverters",
+      "ev": translations[lang]?.ev_section || "EV Chargers",
+      "load": translations[lang]?.load_section || "Consumers"
+    };
+    
+    // Get headers from the table or use default translations
+    let headers = [];
+    const tableHeaders = table.querySelectorAll('thead th');
+    
+    if (tableHeaders.length > 0) {
+      headers = Array.from(tableHeaders).map(th => th.textContent.trim());
+    } else {
+      // Default headers if none found
+      headers = [
+        "Apparaat", "Fase", "Richting", "I (A)", "U (V)", 
+        "P (W)", "S (VA)", "PF", "Q (VAr)", "Status"
+      ];
+    }
+    
+    // Track device types for section headers
+    let currentSection = null;
+    const gridName = translations[lang].grid || "Grid";
+    
+    // Add data-label to each cell with translated headers
+    const rows = table.querySelectorAll('tbody tr');
+    rows.forEach(row => {
+      if (!row.classList.contains('separator-row')) {
+        // Get device name to identify section
+        const deviceNameCell = row.querySelector('td:first-child');
+        if (deviceNameCell) {
+          const deviceName = deviceNameCell.textContent;
+          let deviceType = '';
+          
+          // Determine section based on device name
+          if (deviceName === gridName) {
+            deviceType = 'grid';
+          } else if (deviceName.includes(translations[lang].inverter) || deviceName.toLowerCase().includes("inverter")) {
+            deviceType = 'solar';
+          } else if (deviceName.includes(translations[lang].charger) || deviceName.includes("EV ")) {
+            deviceType = 'ev';
+          } else {
+            deviceType = 'load';
+          }
+          
+          // If this is the first row of a new section, add section heading
+          if (deviceType !== currentSection) {
+            // Add custom section attribute for mobile styling with translated name
+            deviceNameCell.setAttribute('data-section', deviceType);
+            deviceNameCell.setAttribute('data-section-name', sectionTranslations[deviceType] || deviceType);
+            currentSection = deviceType;
+          }
+        }
+        
+        const cells = row.querySelectorAll('td');
+        cells.forEach((cell, index) => {
+          if (index < headers.length) {
+            const headerText = headers[index];
+            const translatedHeader = headerTranslations[headerText] || headerText;
+            cell.setAttribute('data-label', translatedHeader);
+            
+            // Add a mobile-visible label inside each cell
+            if (cell.querySelector('.mobile-label') === null) {
+              // Don't add mobile label to the first column (device name)
+              if (index > 0) {
+                const mobileLabel = document.createElement('span');
+                mobileLabel.className = 'mobile-label';
+                mobileLabel.textContent = translatedHeader + ': ';
+                
+                // Insert at beginning of cell
+                if (cell.firstChild) {
+                  cell.insertBefore(mobileLabel, cell.firstChild);
+                } else {
+                  cell.appendChild(mobileLabel);
+                }
+              }
+            }
+          }
+        });
+      }
+    });
+  });
+}
+
+// Call this after your table is created
+document.addEventListener('DOMContentLoaded', () => {
+  // Preserve original function
+  const originalBuildMeasurementTable = buildMeasurementTable;
+  
+  // Override with new version that calls setupResponsiveTables
+  window.buildMeasurementTable = function() {
+    const result = originalBuildMeasurementTable.apply(this, arguments);
+    setupResponsiveTables();
+    return result;
+  };
+});
