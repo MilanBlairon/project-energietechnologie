@@ -1061,7 +1061,7 @@ function createPhaseSelector(currentPhase, networkType) {
   return select;
 }
 
-// Function to handle phase change events
+// Functie om fasewisselingen af te handelen
 function handlePhaseChange(event) {
   const select = event.target;
   const newPhase = select.value;
@@ -1072,49 +1072,49 @@ function handlePhaseChange(event) {
   const gridName = translations[lang].grid || "Grid";
   const netType = document.getElementById("netType").value;
   
-  // Store the current value to track changes
+  // Sla de huidige waarde op om wijzigingen bij te houden
   select.dataset.currentPhase = newPhase;
   
-  // Find other rows with the same device name (for multi-phase devices)
+  // Zoek andere rijen met dezelfde apparaatnaam (voor meerfasige apparaten)
   const sameDeviceRows = Array.from(document.querySelectorAll("#measTable tr")).filter(r => 
     r !== row && r.cells[0].textContent === deviceName
   );
   
-  // Find the row that has the phase we want to switch to
+  // Zoek de rij die de fase heeft waarnaar we willen wisselen
   const rowWithTargetPhase = sameDeviceRows.find(r => {
     const phaseSelect = r.querySelector(".phase-select");
     return phaseSelect && phaseSelect.value === newPhase;
   });
   
-  // If we found a row with the target phase, swap phases between them
+  // Als we een rij vonden met de doelfase, wissel dan de fasen tussen hen
   if (rowWithTargetPhase) {
     const otherPhaseSelect = rowWithTargetPhase.querySelector(".phase-select");
     
-    // Temporarily remove event listeners to prevent recursion
+    // Verwijder tijdelijk event listeners om recursie te voorkomen
     otherPhaseSelect.removeEventListener('change', handlePhaseChange);
     otherPhaseSelect.value = oldPhase;
     otherPhaseSelect.dataset.currentPhase = oldPhase;
     
-    // Update voltage field for the other row
-    const otherVoltageCell = rowWithTargetPhase.querySelector("td:nth-child(4)");
+    // Update spanningsveld voor de andere rij - gecorrigeerde index
+    const otherVoltageCell = rowWithTargetPhase.querySelector("td:nth-child(5)");
     otherVoltageCell.innerHTML = '';
     const otherVoltageField = createVoltageField(netType, oldPhase);
     otherVoltageCell.appendChild(otherVoltageField);
     
-    // Re-attach event listener
+    // Voeg event listener weer toe
     otherPhaseSelect.addEventListener('change', handlePhaseChange);
   }
   
-  // Update voltage field for the current row
-  const voltageCell = row.querySelector("td:nth-child(4)");
+  // Update spanningsveld voor de huidige rij - gecorrigeerde index
+  const voltageCell = row.querySelector("td:nth-child(5)");
   voltageCell.innerHTML = '';
   const newVoltageField = createVoltageField(netType, newPhase);
   voltageCell.appendChild(newVoltageField);
   
-  // Update grid values to reflect phase changes
+  // Update gridwaarden om faseveranderingen weer te geven
   updateGridValues();
   
-  // Run calculations (regardless of whether they were run before)
+  // Voer berekeningen uit (ongeacht of ze eerder zijn uitgevoerd)
   document.getElementById("runChecks").click();
 }
 

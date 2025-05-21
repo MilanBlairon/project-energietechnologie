@@ -5,7 +5,7 @@
   "display": "standalone",
   "scope": "/",
   "description": "Smappee Simulatie Webapplicatie, gemaakt door Milan Blairon als optioneel project voor Webdevelopment 2 (VIVES Hogeschool Kortrijk), voor studenten Energietechnologie.",
-  "theme_color": "#333334",
+  "theme_color": "#99c031",
   "background_color": "#ffffff",
   "lang": "nl-BE",
   "author": "Milan Blairon <r0981022@student.vives.be>",
