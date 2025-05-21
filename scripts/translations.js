@@ -59,7 +59,7 @@ const translations = {
     "reactive_power_high": "Reactief vermogen te hoog (>0.5 kVAr)",
     
     // Verbruikers
-    "consumer_types": ["Jacuzzi", "Laadstation", "Lift", "Motor", "Oven", "Pomp", "Sauna", "Warmtepomp", "Zwembad"],
+    "consumer_types": ["Airco", "Andere", "Boiler", "Droogkast", "Fornuis", "Jacuzzi", "Laadstation", "Lift", "Motor", "Oven", "Pomp", "Sauna", "Vaatwasser", "Ventilator", "Verwarming", "Warmte-element", "Warmtepomp", "Wasmachine", "Waterpomp", "Zonnewering", "Zwembad"],
     "direction": "Richting",
     "flip_clamp": "Klemrichting omdraaien"
   },
@@ -123,7 +123,7 @@ const translations = {
     "reactive_power_high": "Reactive power too high (>0.5 kVAr)",
     
     // Consumer types
-    "consumer_types": ["Jacuzzi", "Charging station", "Elevator", "Motor", "Oven", "Pump", "Sauna", "Heat pump", "Swimming pool"],
+    "consumer_types": ["AC Unit", "Other", "Boiler", "Dryer", "Cooktop", "Jacuzzi", "Charging station", "Elevator", "Motor", "Oven", "Pump", "Sauna", "Dishwasher", "Fan", "Heating", "Heating element", "Heat pump", "Washing machine", "Water pump", "Sun protection", "Swimming pool"],
     "direction": "Direction",
     "flip_clamp": "Flip clamp direction"
   },
@@ -187,7 +187,7 @@ const translations = {
     "reactive_power_high": "Puissance réactive trop élevée (>0.5 kVAr)",
     
     // Types de consommateurs
-    "consumer_types": ["Jacuzzi", "Borne de recharge", "Ascenseur", "Moteur", "Four", "Pompe", "Sauna", "Pompe à chaleur", "Piscine"],
+    "consumer_types": ["Climatisation", "Autre", "Chauffe-eau", "Sèche-linge", "Cuisinière", "Jacuzzi", "Borne de recharge", "Ascenseur", "Moteur", "Four", "Pompe", "Sauna", "Lave-vaisselle", "Ventilateur", "Chauffage", "Élément chauffant", "Pompe à chaleur", "Machine à laver", "Pompe à eau", "Protection solaire", "Piscine"],
     "direction": "Direction",
     "flip_clamp": "Inverser la direction"
   }

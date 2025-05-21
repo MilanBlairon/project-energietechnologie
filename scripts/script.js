@@ -433,17 +433,26 @@ function buildMeasurementTable() {
 
   function addRow(naam, fase, isGrid = false) {
     const tr = document.createElement("tr");
+    const netType = document.getElementById("netType").value;
+    const lang = window.currentLanguage || 'nl';
+    
+    // Get default amperage for this device
+    const defaultAmperage = isGrid ? null : getDefaultAmperage(naam, netType);
     
     // Create flip button HTML conditionally based on whether it's a grid row
     const flipButtonHTML = isGrid ? 
       '<td class="direction-cell"></td>' : 
       `<td class="direction-cell"><button class="flip-clamp" title="${translations[lang].flip_clamp || 'Flip clamp direction'}">⟲</button></td>`;
     
+    // Create the default amperage value attribute
+    const defaultAmperageAttr = defaultAmperage !== null ? 
+      `value="${defaultAmperage}"` : '';
+    
     tr.innerHTML = `
         <td>${naam}</td>
         <td></td>
         ${flipButtonHTML}
-        <td class="amperage-cell"><input class="I" type="number"/></td>
+        <td class="amperage-cell"><input class="I" type="number" ${defaultAmperageAttr}/></td>
         <td></td>
         <td><input class="P" type="number"/></td>
         <td class="S">–</td>
@@ -495,6 +504,11 @@ function buildMeasurementTable() {
           }
         }
       });
+      
+      // Set appropriate flip button state for default values
+      if (defaultAmperage !== null && defaultAmperage < 0) {
+        flipButton.classList.add("inverted");
+      }
     }
     
     tbody.appendChild(tr);
@@ -596,6 +610,9 @@ function buildMeasurementTable() {
       amperageInput.addEventListener("input", updateGridValues);
     }
   });
+  
+  // After creating all rows, update grid values based on defaults
+  updateGridValues();
 }
 
 // Move the updateGridValues function outside buildMeasurementTable to make it globally accessible
@@ -1109,4 +1126,94 @@ if (document.getElementById("hasEV").value === "yes") {
       addRow(evName, "L3");
     }
   }
+}
+
+// Add after the translations initialization
+
+// Default amperage values for devices by network type
+const defaultDeviceAmperages = {
+  // For 1F and split-phase networks
+  singlePhase: {
+    "Oven": 14,
+    "Vaatwasser": 9,
+    "Wasmachine": 7,
+    "Droogkast": 8,
+    "Ventilator": 2,
+    "Boiler": 7,
+    "Airco": 5,
+    "Fornuis": 12,
+    "Jacuzzi": 8,
+    "Lift": 18,
+    "Motor": 3,
+    "Pomp": 5,
+    "Sauna": 13,
+    "Verwarming": 13,
+    "Warmte-element": 5,
+    "Warmtepomp": 7,
+    "Waterpomp": 4,
+    "Zonnewering": 2,
+    "Zwembad": 15,
+    "Andere": null // No default value
+  },
+  // For 3F networks
+  threePhase: {
+    "Laadstation": 16,
+    "Jacuzzi": 3,
+    "Lift": 6,
+    "Motor": 3,
+    "Oven": 5,
+    "Pomp": 2,
+    "Sauna": 9,
+    "Warmtepomp": 7,
+    "Zwembad": 8,
+    "Andere": null // No default value
+  },
+  // EV chargers
+  evChargers: {
+    "EV Base": 16,
+    "EV One": 16,
+    "EV Ultra": 16,
+    "EV Wall": 16
+  },
+  // Solar inverters
+  inverters: {
+    "Omvormer": 6.73
+  }
+};
+
+// Helper function to get default amperage for a device
+function getDefaultAmperage(deviceName, netType) {
+  const lang = window.currentLanguage || 'nl';
+  
+  // Handle solar inverters
+  if (deviceName.includes(translations[lang].inverter) || deviceName.toLowerCase().includes("inverter")) {
+    return -6.73; // Negative because solar produces power
+  }
+  
+  // Handle EV chargers
+  if (deviceName.includes("EV ")) {
+    const evModel = deviceName.split(": ")[1]; // Extract model name after colon
+    return defaultDeviceAmperages.evChargers[evModel] || null;
+  }
+  
+  // Handle regular devices
+  const deviceType = netType === "1F" || netType === "split" ? "singlePhase" : "threePhase";
+  
+  // Try to find the device in the default list
+  for (const [defaultName, amperage] of Object.entries(defaultDeviceAmperages[deviceType])) {
+    // Check for exact match first
+    if (deviceName === defaultName) {
+      return amperage;
+    }
+    
+    // For translated device names, try to find a match in the current language
+    for (const translatedName of translations[lang].consumer_types) {
+      if (deviceName === translatedName && 
+          translations.nl.consumer_types.indexOf(defaultName) === translations[lang].consumer_types.indexOf(translatedName)) {
+        return amperage;
+      }
+    }
+  }
+  
+  return null; // No default found
 }
