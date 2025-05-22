@@ -15,6 +15,12 @@
  * Contact: r0981022@student.vives.be
  */
 
+const Pf_rounding = 5; // Aantal decimalen voor PF
+const Q_rounding = 0; // Aantal decimalen voor Q
+const S_rounding = 0; // Aantal decimalen voor S
+const P_rounding = 0; // Aantal decimalen voor P
+const I_rounding = 2; // Aantal decimalen voor I
+
 document.addEventListener("DOMContentLoaded", () => {
   init();
 });
@@ -519,7 +525,7 @@ function buildMeasurementTable() {
 
           // Set the new value after a slight delay for better animation visibility
           setTimeout(() => {
-            powerInput.value = newValue.toFixed(0);
+            powerInput.value = newValue.toFixed(P_rounding);
             // Remove animation class
             setTimeout(() => powerInput.classList.remove("flipped"), 300);
           }, 200);
@@ -718,7 +724,7 @@ function updateGridValues() {
         const gridAmperage = phaseAmperages[phase].ev + phaseAmperages[phase].load - phaseAmperages[phase].solar;
         const gridInput = row.querySelector(".I");
         if (gridInput) {
-          gridInput.value = gridAmperage.toFixed(1);
+          gridInput.value = gridAmperage.toFixed(I_rounding);
         }
       }
     }
@@ -798,11 +804,11 @@ document.getElementById("runChecks").onclick = () => {
       const alertCell = tr.querySelector(".alert");
 
       // Display calculations
-      sCell.textContent = S.toFixed(0);
+      sCell.textContent = S.toFixed(S_rounding);
 
       // Display values or error indicator for PF and Q
-      pfCell.textContent = isPowerInvalid ? "!" : PF.toFixed(2);
-      qCell.textContent = isPowerInvalid ? "!" : Q.toFixed(0);
+      pfCell.textContent = isPowerInvalid ? "!" : PF.toFixed(Pf_rounding);
+      qCell.textContent = isPowerInvalid ? "!" : Q.toFixed(Q_rounding);
 
       // Voeg animatieklasse toe
       [sCell, pfCell, qCell].forEach(cell => {
@@ -857,8 +863,6 @@ document.getElementById("runChecks").onclick = () => {
               if (dataPhase === phase && getDeviceType(name, lang) === "ev") {
                 const alertCell = tr.querySelector(".alert");
                 alertCell.textContent = translations[lang].solar_grid_less_than_ev;
-                alertCell.style.animation = "shake 0.5s";
-                setTimeout(() => alertCell.style.animation = "", 500);
               }
             });
           }
