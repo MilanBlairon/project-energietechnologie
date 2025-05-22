@@ -21,8 +21,103 @@ const S_rounding = 0; // Aantal decimalen voor S
 const P_rounding = 0; // Aantal decimalen voor P
 const I_rounding = 2; // Aantal decimalen voor I
 
-document.addEventListener("DOMContentLoaded", () => {
+// Standaard stroomsterkte waarden voor apparaten per netwerktype
+const defaultDeviceAmperages = {
+  // Voor 1F en split-phase netwerken
+  singlePhase: {
+    "Oven": 14,
+    "Vaatwasser": 9,
+    "Wasmachine": 7,
+    "Droogkast": 8,
+    "Ventilator": 2,
+    "Boiler": 7,
+    "Airco": 5,
+    "Fornuis": 12,
+    "Jacuzzi": 8,
+    "Lift": 18,
+    "Motor": 3,
+    "Pomp": 5,
+    "Sauna": 13,
+    "Verwarming": 13,
+    "Warmte-element": 5,
+    "Warmtepomp": 7,
+    "Waterpomp": 4,
+    "Zonnewering": 2,
+    "Zwembad": 15,
+    "Andere": null // Geen standaardwaarde
+  },
+  // Voor 3F netwerken
+  threePhase: {
+    "Laadstation": 16,
+    "Jacuzzi": 3,
+    "Lift": 6,
+    "Motor": 3,
+    "Oven": 5,
+    "Pomp": 2,
+    "Sauna": 9,
+    "Warmtepomp": 7,
+    "Zwembad": 8,
+    "Andere": null // Geen standaardwaarde
+  },
+  // EV laders
+  evChargers: {
+    "EV Base": 16,
+    "EV One": 16,
+    "EV Ultra": 16,
+    "EV Wall": 16
+  },
+  // Zonnepaneel omvormers
+  inverters: {
+    "Omvormer": 6.73
+  }
+};
+
+document.addEventListener('DOMContentLoaded', () => {
   init();
+
+  // Stel taalkeuzeknoppen in
+  const langButtons = document.querySelectorAll('.lang-btn');
+  const languageSwitch = document.getElementById('languageSwitch');
+
+  // Functie om taal te wijzigen en naar configuratiepagina te navigeren
+  const changeLanguage = (lang) => {
+    // Pas vertalingen toe op basis van de geselecteerde taal
+    setLanguage(lang);
+
+    // Verberg taalselectiepagina en toon configuratiepagina
+    togglePage("languageSelector", false);
+    setTimeout(() => {
+      togglePage("config", true);
+    }, 500);
+  };
+
+  // Voeg klikgebeurtenisluisteraars toe aan taalknoppen
+  langButtons.forEach(button => {
+    button.addEventListener('click', () => {
+      const lang = button.getAttribute('data-lang');
+      changeLanguage(lang);
+    });
+  });
+
+  // Verwerk ook taalwijzigingen van de dropdown in de configuratiepagina
+  if (languageSwitch) {
+    languageSwitch.addEventListener('change', () => {
+      setLanguage(languageSwitch.value);
+    });
+  }
+
+  // Begin altijd met de taalselectiepagina zichtbaar en de configuratiepagina verborgen
+  document.getElementById('config').hidden = true;
+  document.getElementById('languageSelector').hidden = false;
+
+  // Verberg initieel alle configuratiesecties tot het netwerktype is geselecteerd
+  const configSections = document.querySelectorAll('.config-section');
+  configSections.forEach(section => {
+    section.hidden = true;
+  });
+
+  // Voeg gebeurtenisluisteraar toe voor netwerktypeselectie
+  document.getElementById("netType").addEventListener("change", updateConfigVisibility);
 });
 
 // Initialisatiefunctie
@@ -315,7 +410,6 @@ function rebuildConsumerDetails() {
           element.value = previousConnValues[index];
         }
       }
-      // Voor hidden inputs doen we niets extra, die hebben al een vaste waarde
     }
   });
 }
@@ -329,9 +423,6 @@ function findClosestMatch(previousValue, newOptions) {
   // Anders gebruik de eerste optie als fallback
   return 0;
 }
-
-// Verbruikerscategorieën uit vertalingen
-let verbruikersTypes = translations.nl.consumer_types; // Standaard Nederlands
 
 // Toon/verberg configuratie-secties
 [
@@ -455,13 +546,6 @@ function buildMeasurementTable() {
   tbody.innerHTML = "";
   const netType = document.getElementById("netType").value;
   const lang = window.currentLanguage || 'nl';
-
-  // We volgen alle stroomwaarden per fase om grid-netwaarden te berekenen
-  const phaseAmperages = {
-    L1: { solar: 0, load: 0, ev: 0 },
-    L2: { solar: 0, load: 0, ev: 0 },
-    L3: { solar: 0, load: 0, ev: 0 }
-  };
 
   // Grid rijen referentie om later bij te werken
   const gridRows = {};
@@ -667,8 +751,6 @@ function buildMeasurementTable() {
   // Na het maken van alle rijen, werk grid waarden bij op basis van standaardwaarden
   updateGridValues();
 }
-
-// Verplaats de updateGridValues functie buiten buildMeasurementTable om het globaal toegankelijk te maken
 
 // Globale helper om apparaattype te bepalen uit naam
 function getDeviceType(name, lang) {
@@ -899,54 +981,6 @@ document.getElementById("runChecks").onclick = () => {
   });
 };
 
-document.addEventListener('DOMContentLoaded', () => {
-  // Verwijder de bestaande taalsetupcode in init() aangezien we het hier afhandelen
-
-  // Stel taalkeuzeknoppen in
-  const langButtons = document.querySelectorAll('.lang-btn');
-  const languageSwitch = document.getElementById('languageSwitch');
-
-  // Functie om taal te wijzigen en naar configuratiepagina te navigeren
-  const changeLanguage = (lang) => {
-    // Pas vertalingen toe op basis van de geselecteerde taal
-    setLanguage(lang);
-
-    // Verberg taalselectiepagina en toon configuratiepagina
-    togglePage("languageSelector", false);
-    setTimeout(() => {
-      togglePage("config", true);
-    }, 500);
-  };
-
-  // Voeg klikgebeurtenisluisteraars toe aan taalknoppen
-  langButtons.forEach(button => {
-    button.addEventListener('click', () => {
-      const lang = button.getAttribute('data-lang');
-      changeLanguage(lang);
-    });
-  });
-
-  // Verwerk ook taalwijzigingen van de dropdown in de configuratiepagina
-  if (languageSwitch) {
-    languageSwitch.addEventListener('change', () => {
-      setLanguage(languageSwitch.value);
-    });
-  }
-
-  // Begin altijd met de taalselectiepagina zichtbaar en de configuratiepagina verborgen
-  document.getElementById('config').hidden = true;
-  document.getElementById('languageSelector').hidden = false;
-
-  // Verberg initieel alle configuratiesecties tot het netwerktype is geselecteerd
-  const configSections = document.querySelectorAll('.config-section');
-  configSections.forEach(section => {
-    section.hidden = true;
-  });
-
-  // Voeg gebeurtenisluisteraar toe voor netwerktypeselectie
-  document.getElementById("netType").addEventListener("change", updateConfigVisibility);
-});
-
 // Voeg deze functie toe om de zichtbaarheid van configuratiesecties te beheren
 function updateConfigVisibility() {
   const netType = document.getElementById("netType").value;
@@ -1130,86 +1164,6 @@ function handlePhaseChange(event) {
   // Voer berekeningen uit (ongeacht of ze eerder zijn uitgevoerd)
   document.getElementById("runChecks").click();
 }
-
-// EV-laders
-if (document.getElementById("hasEV").value === "yes") {
-  const evCount = parseInt(document.getElementById("evCount").value);
-  const evTypes = document.querySelectorAll("#evDetails [data-role=evType]");
-
-  for (let i = 0; i < evCount; i++) {
-    // Haal het geselecteerde EV-type op uit de dropdown
-    const evType = evTypes[i].value;
-    const evName = `${translations[lang].charger} ${i + 1}: ${evType}`;
-
-    // Voor EV-laders, voeg rijen toe op basis van netwerktype
-    if (netType === "1F") {
-      // Eenfasig netwerk - voeg altijd één rij toe met L1
-      addRow(evName, "L1");
-    } else if (netType === "split") {
-      // Split-phase netwerk - voeg altijd twee rijen toe (L1 en L2)
-      addRow(evName, "L1");
-      addRow(evName, "L2");
-    } else if (netType === "3F-star" || netType === "3F-delta") {
-      // Driefasig netwerk - voeg altijd drie rijen toe (L1, L2, L3)
-      addRow(evName, "L1");
-      addRow(evName, "L2");
-      addRow(evName, "L3");
-    }
-  }
-}
-
-// Voeg toe na de vertalingen initialisatie
-
-// Standaard stroomsterkte waarden voor apparaten per netwerktype
-const defaultDeviceAmperages = {
-  // Voor 1F en split-phase netwerken
-  singlePhase: {
-    "Oven": 14,
-    "Vaatwasser": 9,
-    "Wasmachine": 7,
-    "Droogkast": 8,
-    "Ventilator": 2,
-    "Boiler": 7,
-    "Airco": 5,
-    "Fornuis": 12,
-    "Jacuzzi": 8,
-    "Lift": 18,
-    "Motor": 3,
-    "Pomp": 5,
-    "Sauna": 13,
-    "Verwarming": 13,
-    "Warmte-element": 5,
-    "Warmtepomp": 7,
-    "Waterpomp": 4,
-    "Zonnewering": 2,
-    "Zwembad": 15,
-    "Andere": null // Geen standaardwaarde
-  },
-  // Voor 3F netwerken
-  threePhase: {
-    "Laadstation": 16,
-    "Jacuzzi": 3,
-    "Lift": 6,
-    "Motor": 3,
-    "Oven": 5,
-    "Pomp": 2,
-    "Sauna": 9,
-    "Warmtepomp": 7,
-    "Zwembad": 8,
-    "Andere": null // Geen standaardwaarde
-  },
-  // EV laders
-  evChargers: {
-    "EV Base": 16,
-    "EV One": 16,
-    "EV Ultra": 16,
-    "EV Wall": 16
-  },
-  // Zonnepaneel omvormers
-  inverters: {
-    "Omvormer": 6.73
-  }
-};
 
 // Hulpfunctie om standaard stroomsterkte voor een apparaat te krijgen
 function getDefaultAmperage(deviceName, netType) {
