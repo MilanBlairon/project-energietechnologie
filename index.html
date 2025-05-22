@@ -24,8 +24,12 @@
   <link rel="icon" type="image/x-icon" href="images/favicon.ico">
   <link rel="manifest" href="manifest.json">
   <script src="scripts/script.js" type="module"></script>
+  <link rel="preload" as="image" href="https://flagcdn.com/48x36/nl.png">
+  <link rel="preload" as="image" href="https://flagcdn.com/48x36/gb.png">
+  <link rel="preload" as="image" href="https://flagcdn.com/48x36/fr.png">
 </head>
 <body>
+
   <!-- TAAL SELECTOR -->
   <div id="languageSelector" class="page language-page">
     <h1>SIMULATIE TOOL VOOR INSTALLATIE- EN CONFIGURATIEFOUTEN</h1>
@@ -37,13 +41,13 @@
       <h1>Sélectionnez la langue</h1>
       <div class="language-buttons">
         <button class="lang-btn" data-lang="nl">
-          <img src="images/nl-flag.svg" alt="Dutch Flag"> Nederlands
+          <img src="https://flagcdn.com/48x36/nl.png" alt="Dutch Flag"> Nederlands
         </button>
         <button class="lang-btn" data-lang="en">
-          <img src="images/en-flag.webp" alt="English Flag"> English
+          <img src="https://flagcdn.com/48x36/gb.png" alt="English Flag"> English
         </button>
         <button class="lang-btn" data-lang="fr">
-          <img src="images/fr-flag.png" alt="French Flag"> Français
+          <img src="https://flagcdn.com/48x36/fr.png" alt="French Flag"> Français
         </button>
       </div>
     </div>
@@ -145,5 +149,6 @@
     <button id="runChecks" data-i18n="check">Controleer</button>
     <button id="backConfig" data-i18n="back">← Terug</button>
   </div>
+  
 </body>
 </html>
