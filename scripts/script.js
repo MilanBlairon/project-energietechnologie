@@ -14,63 +14,19 @@
  *
  * Contact: r0981022@student.vives.be
  */
+// Importeer configuratie constanten
+import {
+  Pf_rounding,
+  Q_rounding,
+  S_rounding,
+  P_rounding,
+  I_rounding,
+  defaultDeviceAmperages
+} from './config/config.js';
 
-const Pf_rounding = 5; // Aantal decimalen voor PF
-const Q_rounding = 0; // Aantal decimalen voor Q
-const S_rounding = 0; // Aantal decimalen voor S
-const P_rounding = 0; // Aantal decimalen voor P
-const I_rounding = 2; // Aantal decimalen voor I
-
-// Standaard stroomsterkte waarden voor apparaten per netwerktype
-const defaultDeviceAmperages = {
-  // Voor 1F en split-phase netwerken
-  singlePhase: {
-    "Oven": 14,
-    "Vaatwasser": 9,
-    "Wasmachine": 7,
-    "Droogkast": 8,
-    "Ventilator": 2,
-    "Boiler": 7,
-    "Airco": 5,
-    "Fornuis": 12,
-    "Jacuzzi": 8,
-    "Lift": 18,
-    "Motor": 3,
-    "Pomp": 5,
-    "Sauna": 13,
-    "Verwarming": 13,
-    "Warmte-element": 5,
-    "Warmtepomp": 7,
-    "Waterpomp": 4,
-    "Zonnewering": 2,
-    "Zwembad": 15,
-    "Andere": null // Geen standaardwaarde
-  },
-  // Voor 3F netwerken
-  threePhase: {
-    "Laadstation": 16,
-    "Jacuzzi": 3,
-    "Lift": 6,
-    "Motor": 3,
-    "Oven": 5,
-    "Pomp": 2,
-    "Sauna": 9,
-    "Warmtepomp": 7,
-    "Zwembad": 8,
-    "Andere": null // Geen standaardwaarde
-  },
-  // EV laders
-  evChargers: {
-    "EV Base": 16,
-    "EV One": 16,
-    "EV Ultra": 16,
-    "EV Wall": 16
-  },
-  // Zonnepaneel omvormers
-  inverters: {
-    "Omvormer": 6.73
-  }
-};
+import {
+  translations
+} from './config/translations.js';
 
 document.addEventListener('DOMContentLoaded', () => {
   init();

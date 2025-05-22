@@ -15,8 +15,11 @@
  * Contact: r0981022@student.vives.be
  */
 
-// Vertalingen voor de app
-const translations = {
+/**
+ * Vertalingen voor de SmappeeSim applicatie
+ */
+
+export const translations = {
   nl: {
     // Algemeen
     "select": "-- selecteer --",
