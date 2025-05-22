@@ -44,7 +44,7 @@ const translations = {
     "connection": "Aansluiting",
     
     // Meetpagina
-    "measure_title": "Voer Metingen In",
+    "measure_title": "Voer metingen in",
     "grid": "Net",
     "device": "Apparaat",
     "phase": "Fase",
@@ -108,7 +108,7 @@ const translations = {
     "connection": "Connection",
     
     // Measurement page
-    "measure_title": "Enter Measurements",
+    "measure_title": "Enter measurements",
     "grid": "Grid",
     "device": "Device",
     "phase": "Phase",

@@ -57,6 +57,19 @@ function setLanguage(lang) {
           }
         }
       }
+
+      // Meting titel aanpassen indien taal verandert
+      if (key === 'measure_title') {
+        const netType = document.getElementById("netType").value;
+        if (netType) {
+          const selectedOption = document.querySelector(`#netType option[value="${netType}"]`);
+          if (selectedOption) {
+            element.textContent = `${translations[lang][key]}: ${selectedOption.textContent}`;
+            return; // Skip default assignment
+          }
+        }
+      }
+
       element.textContent = translations[lang][key];
     }
   });
@@ -496,15 +509,20 @@ function buildMeasurementTable() {
     if (!isGrid) {
       const flipButton = tr.querySelector(".flip-clamp");
       flipButton.addEventListener("click", function() {
-        const amperageInput = tr.querySelector(".I");
-        if (amperageInput.value) {
-          // Flip the sign of the current value
-          const newValue = -1 * parseFloat(amperageInput.value);
-          amperageInput.value = newValue.toFixed(1);
+        const powerInput = tr.querySelector(".P");
+        if (powerInput.value) {
+          // Flip the sign of the power value
+          const newValue = -1 * parseFloat(powerInput.value);
           
           // Apply a quick visual feedback
-          amperageInput.classList.add("flipped");
-          setTimeout(() => amperageInput.classList.remove("flipped"), 500);
+          powerInput.classList.add("flipped");
+          
+          // Set the new value after a slight delay for better animation visibility
+          setTimeout(() => {
+            powerInput.value = newValue.toFixed(0);
+            // Remove animation class
+            setTimeout(() => powerInput.classList.remove("flipped"), 300);
+          }, 200);
           
           // Add/remove the inverted class based on the new value
           if (newValue < 0) {
@@ -513,19 +531,19 @@ function buildMeasurementTable() {
             flipButton.classList.remove("inverted");
           }
           
-          // Update grid values after flipping
-          updateGridValues();
           // Re-run calculations if they were already run
           if (document.querySelector("#measTable .S").textContent !== "–") {
-            document.getElementById("runChecks").click();
+            // Give time for the animation to complete
+            setTimeout(() => {
+              document.getElementById("runChecks").click();
+            }, 600);
           }
         }
       });
       
-      // Set appropriate flip button state for default values
-      if (defaultAmperage !== null && defaultAmperage < 0) {
-        flipButton.classList.add("inverted");
-      }
+      // Remove the connection between defaultAmperage and button state
+      // The button should start in non-inverted state by default
+      flipButton.classList.remove("inverted");
     }
     
     tbody.appendChild(tr);
@@ -689,20 +707,6 @@ function updateGridValues() {
         if (gridInput) {
           gridInput.value = gridAmperage.toFixed(1);
         }
-      }
-    }
-  });
-  
-  // Update flip button visual state for all rows
-  document.querySelectorAll("#measTable tr:not(.separator-row)").forEach(row => {
-    const amperageInput = row.querySelector(".I");
-    const flipButton = row.querySelector(".flip-clamp");
-    if (amperageInput && flipButton) {
-      const value = parseFloat(amperageInput.value) || 0;
-      if (value < 0) {
-        flipButton.classList.add("inverted");
-      } else {
-        flipButton.classList.remove("inverted");
       }
     }
   });
@@ -938,7 +942,7 @@ function updateConfigVisibility() {
   const netType = document.getElementById("netType").value;
   const configSections = document.querySelectorAll('.config-section');
   const selectedNetTypeElement = document.getElementById("selectedNetType");
-  const configTitle = document.querySelector("h1[data-i18n='config_title']");
+  const measureTitle = document.querySelector("h1[data-i18n='measure_title']");
   const lang = window.currentLanguage || 'nl';
   
   // Update the configuration title but don't show network type after the label
@@ -950,20 +954,19 @@ function updateConfigVisibility() {
       selectedNetTypeElement.textContent = "";
       
       // Update the title to include the network type
-      if (configTitle && translations[lang] && translations[lang].config_title) {
-        configTitle.textContent = `${translations[lang].config_title}: ${selectedOption.textContent}`;
+      if (measureTitle && translations[lang] && translations[lang].measure_title) {
+        measureTitle.textContent = `${translations[lang].measure_title}: ${selectedOption.textContent}`;
       }
     }
   } else {
     selectedNetTypeElement.textContent = ""; // Keep this empty
     
     // Restore original title
-    if (configTitle && translations[lang] && translations[lang].config_title) {
-      configTitle.textContent = translations[lang].config_title;
+    if (measureTitle && translations[lang] && translations[lang].measure_title) {
+      measureTitle.textContent = translations[lang].measure_title;
     }
   }
   
-  // Rest of the function remains unchanged
   // Toon configuratiesecties alleen als netwerktype is geselecteerd
   configSections.forEach(section => {
     section.hidden = !netType;

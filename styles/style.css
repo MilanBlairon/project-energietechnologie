@@ -435,7 +435,7 @@ select {
   100% { background-color: var(--smappee-white); }
 }
 
-.I.flipped {
+.P.flipped {
   animation: flipEffect 0.5s;
 }
 
