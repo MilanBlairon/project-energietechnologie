@@ -813,27 +813,22 @@ document.getElementById("runChecks").onclick = () => {
         if (I < 0 && PF > 0.9) {
           alertCell.textContent = translations[lang].ct_direction;
         }
-        // 3. Controleer fasefout (Phase error)
-        // Als stroom negatief is en powerfactor laag (<0.7), wijst dit op fasefout
-        else if (I < 0 && PF < 0.7) {
-          alertCell.textContent = translations[lang].phase_error;
+        // 3. Controleer foutieve fasetoewijzing
+        // Gecombineerde controle voor foutieve fasetoewijzing
+        else if ((I < 0 && PF < 0.7) || (PF < 0.7 && I > 2)) {
+          alertCell.textContent = translations[lang].wrong_phase_assignment;
         }
         // 4. Controleer CT-klem (Check CT clamp)
         // Als de absolute stroom heel hoog is (>400A), controleer de klem
         else if (Math.abs(I) > 400) {
           alertCell.textContent = translations[lang].check_ct;
         }
-        // 5. Foute fasetoewijzing (Wrong phase assignment)
-        // Als powerfactor laag is (<0.7) en stroom significant (>2A), wijst dit op foute fasetoewijzing
-        else if (PF < 0.7 && I > 2) {
-          alertCell.textContent = translations[lang].wrong_phase_assignment;
-        }
-        // 6. Foute klemrichting (Wrong clamp direction)
+        // 5. Foute klemrichting (Wrong clamp direction)
         // Als powerfactor hoog is (>0.7) maar vermogen negatief, wijst dit op foute klemrichting
         else if (PF > 0.7 && P < 0) {
           alertCell.textContent = translations[lang].wrong_clamp_direction;
         }
-        // 7. Negatieve powerfactor waarschuwing
+        // 6. Negatieve powerfactor waarschuwing
         else if (isNegativePF && translations[lang]?.negative_pf) {
           alertCell.textContent = translations[lang].negative_pf;
         }

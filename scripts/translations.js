@@ -59,7 +59,6 @@ const translations = {
     
     // Errors
     "ct_direction": "CT-richting fout",
-    "phase_error": "Fasefout",
     "check_ct": "Controleer CT-klem",
     "wrong_phase_assignment": "Foute fasetoewijzing",
     "wrong_clamp_direction": "Foute klemrichting",
@@ -123,7 +122,6 @@ const translations = {
     
     // Error messages
     "ct_direction": "CT direction error",
-    "phase_error": "Phase error",
     "check_ct": "Check CT clamp",
     "wrong_phase_assignment": "Wrong phase assignment",
     "wrong_clamp_direction": "Wrong clamp direction",
@@ -187,7 +185,6 @@ const translations = {
     
     // Erreurs
     "ct_direction": "Erreur de direction CT",
-    "phase_error": "Erreur de phase",
     "check_ct": "Vérifiez la pince CT",
     "wrong_phase_assignment": "Attribution de phase incorrecte",
     "wrong_clamp_direction": "Direction de pince incorrecte",
