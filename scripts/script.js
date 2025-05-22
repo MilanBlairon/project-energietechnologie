@@ -6,7 +6,7 @@
  *
  * Context: Deze webapp werd ontwikkeld als hulp voor twee studenten Energietechnologie 
  *          die hun bachelorproef uitvoeren bij Smappee. 
- *          Alle logo’s en merkmaterialen werden met toestemming van de studenten gebruikt. 
+ *          Alle logo's en merkmaterialen werden met toestemming van de studenten gebruikt. 
  *          Milan Blairon is niet aansprakelijk voor gebruik van deze elementen buiten deze context.
  *
  * Auteursrecht: © 2025 Milan Blairon. Alle rechten voorbehouden.
@@ -52,14 +52,14 @@ function setLanguage(lang) {
   document.querySelectorAll('[data-i18n]').forEach(element => {
     const key = element.getAttribute('data-i18n');
     if (translations[lang] && translations[lang][key]) {
-      // Special handling for config_title if network type is selected
+      // Speciale behandeling voor config_title als netwerktype is geselecteerd
       if (key === 'config_title') {
         const netType = document.getElementById("netType").value;
         if (netType) {
           const selectedOption = document.querySelector(`#netType option[value="${netType}"]`);
           if (selectedOption) {
             element.textContent = `${translations[lang][key]}: ${selectedOption.textContent}`;
-            return; // Skip default assignment
+            return; // Sla standaardtoewijzing over
           }
         }
       }
@@ -71,7 +71,7 @@ function setLanguage(lang) {
           const selectedOption = document.querySelector(`#netType option[value="${netType}"]`);
           if (selectedOption) {
             element.textContent = `${translations[lang][key]}: ${selectedOption.textContent}`;
-            return; // Skip default assignment
+            return; // Sla standaardtoewijzing over
           }
         }
       }
@@ -172,13 +172,12 @@ function rebuildSolarDetails() {
   document.querySelectorAll("#solarDetails [data-role=solarType]").forEach((element, index) => {
     if (previousValues[index]) {
       if (element.tagName === "SELECT") {
-        // Check of de optie bestaat in de nieuwe lijst
+        // Controleer of de optie bestaat in de nieuwe lijst
         const optionExists = Array.from(element.options).some(opt => opt.value === previousValues[index]);
         if (optionExists) {
           element.value = previousValues[index];
         }
       }
-      // Voor hidden inputs doen we niets extra, die hebben al een vaste waarde
     }
   });
 }
@@ -189,7 +188,7 @@ function rebuildEVDetails() {
   const previousValues = [];
   const netType = document.getElementById("netType").value;
 
-  // Bewaar huidige selectiewaarden voor herbouwen (alleen voor EV type, niet voor connection)
+  // Bewaar huidige selectiewaarden voor herbouwen (alleen voor EV type, niet voor verbinding)
   document.querySelectorAll("#evDetails [data-role=evType]").forEach(select => {
     previousValues.push(select.value);
   });
@@ -200,7 +199,7 @@ function rebuildEVDetails() {
     const div = document.createElement("div");
     const lang = window.currentLanguage || 'nl';
 
-    // Determine the connection type based on network type
+    // Bepaal het verbindingstype op basis van netwerktype
     let connectionDisplay = '';
 
     if (netType === "1F") {
@@ -310,7 +309,7 @@ function rebuildConsumerDetails() {
   document.querySelectorAll("#loadDetails [data-role=loadConn]").forEach((element, index) => {
     if (previousConnValues[index]) {
       if (element.tagName === "SELECT") {
-        // Check of de optie bestaat in de nieuwe lijst
+        // Controleer of de optie bestaat in de nieuwe lijst
         const optionExists = Array.from(element.options).some(opt => opt.value === previousConnValues[index]);
         if (optionExists) {
           element.value = previousConnValues[index];
@@ -374,7 +373,7 @@ bindCount("evCount", "evDetails", i => {
 // Verbruikers
 bindCount("loadCount", "loadDetails", i => {
   rebuildConsumerDetails();
-  return document.createElement("div"); // Dummy return since rebuildConsumerDetails handles the actual creation
+  return document.createElement("div"); // Dummy return aangezien rebuildConsumerDetails de eigenlijke aanmaak afhandelt
 });
 
 // Navigatie met validatie
@@ -457,14 +456,14 @@ function buildMeasurementTable() {
   const netType = document.getElementById("netType").value;
   const lang = window.currentLanguage || 'nl';
 
-  // We'll track all amperage values by phase to calculate grid net values
+  // We volgen alle stroomwaarden per fase om grid-netwaarden te berekenen
   const phaseAmperages = {
     L1: { solar: 0, load: 0, ev: 0 },
     L2: { solar: 0, load: 0, ev: 0 },
     L3: { solar: 0, load: 0, ev: 0 }
   };
 
-  // Grid rows reference to update later
+  // Grid rijen referentie om later bij te werken
   const gridRows = {};
 
   function addRow(naam, fase, isGrid = false) {
@@ -472,15 +471,15 @@ function buildMeasurementTable() {
     const netType = document.getElementById("netType").value;
     const lang = window.currentLanguage || 'nl';
 
-    // Get default amperage for this device
+    // Haal standaard stroomsterkte op voor dit apparaat
     const defaultAmperage = isGrid ? null : getDefaultAmperage(naam, netType);
 
-    // Create flip button HTML conditionally based on whether it's a grid row
+    // Maak flip knop HTML voorwaardelijk gebaseerd op of het een grid rij is
     const flipButtonHTML = isGrid ?
       '<td class="direction-cell"></td>' :
       `<td class="direction-cell"><button class="flip-clamp" title="${translations[lang].flip_clamp || 'Flip clamp direction'}">⟲</button></td>`;
 
-    // Create the default amperage value attribute
+    // Maak het standaard stroomsterkte waarde attribuut
     const defaultAmperageAttr = defaultAmperage !== null ?
       `value="${defaultAmperage}"` : '';
 
@@ -497,7 +496,7 @@ function buildMeasurementTable() {
         <td class="alert"></td>
       `;
 
-    // Add phase dropdown instead of static text
+    // Voeg fase dropdown toe in plaats van statische tekst
     const phaseCell = tr.querySelector("td:nth-child(2)");
     const phaseSelect = createPhaseSelector(fase, netType);
     phaseCell.appendChild(phaseSelect);
@@ -506,40 +505,40 @@ function buildMeasurementTable() {
     const voltageField = createVoltageField(netType, fase);
     voltageCell.appendChild(voltageField);
 
-    // If this is a grid row, store reference for later update
+    // Als dit een grid rij is, sla referentie op voor latere update
     if (isGrid) {
       gridRows[fase] = tr;
     }
 
-    // Add event listener to the flip clamp button only for non-grid rows
+    // Voeg event listener toe aan de flip clamp knop alleen voor niet-grid rijen
     if (!isGrid) {
       const flipButton = tr.querySelector(".flip-clamp");
       flipButton.addEventListener("click", function () {
         const powerInput = tr.querySelector(".P");
         if (powerInput.value) {
-          // Flip the sign of the power value
+          // Keer het teken van de vermogenswaarde om
           const newValue = -1 * parseFloat(powerInput.value);
 
-          // Apply a quick visual feedback
+          // Pas een snelle visuele feedback toe
           powerInput.classList.add("flipped");
 
-          // Set the new value after a slight delay for better animation visibility
+          // Stel de nieuwe waarde in na een kleine vertraging voor betere zichtbaarheid van animatie
           setTimeout(() => {
             powerInput.value = newValue.toFixed(P_rounding);
-            // Remove animation class
+            // Verwijder animatieklasse
             setTimeout(() => powerInput.classList.remove("flipped"), 300);
           }, 200);
 
-          // Add/remove the inverted class based on the new value
+          // Voeg/verwijder de inverted klasse toe op basis van de nieuwe waarde
           if (newValue < 0) {
             flipButton.classList.add("inverted");
           } else {
             flipButton.classList.remove("inverted");
           }
 
-          // Re-run calculations if they were already run
+          // Voer berekeningen opnieuw uit als ze al zijn uitgevoerd
           if (document.querySelector("#measTable .S").textContent !== "–") {
-            // Give time for the animation to complete
+            // Geef tijd voor de animatie om te voltooien
             setTimeout(() => {
               document.getElementById("runChecks").click();
             }, 600);
@@ -547,17 +546,17 @@ function buildMeasurementTable() {
         }
       });
 
-      // Remove the connection between defaultAmperage and button state
-      // The button should start in non-inverted state by default
+      // Verwijder de verbinding tussen defaultAmperage en knopstatus
+      // De knop moet standaard in niet-omgekeerde toestand beginnen
       flipButton.classList.remove("inverted");
     }
 
-    // Add min=0 to force positive values for current input
+    // Voeg min=0 toe om positieve waarden af te dwingen voor stroom invoer
     const currentInput = tr.querySelector(".I");
     if (currentInput) {
       currentInput.setAttribute("min", "0");
 
-      // Prevent negative values on input
+      // Voorkom negatieve waarden bij invoer
       currentInput.addEventListener("input", function () {
         if (parseFloat(this.value) < 0) {
           this.value = Math.abs(parseFloat(this.value));
@@ -569,10 +568,10 @@ function buildMeasurementTable() {
     return tr;
   }
 
-  // Add Grid connection rows at the top of the table
+  // Voeg Grid verbindingsrijen toe bovenaan de tabel
   const gridName = translations[lang].grid || "Grid";
 
-  // Add appropriate phases based on network type
+  // Voeg juiste fasen toe op basis van netwerktype
   if (netType === "1F") {
     addRow(gridName, "L1", true);
   } else if (netType === "split") {
@@ -584,7 +583,7 @@ function buildMeasurementTable() {
     addRow(gridName, "L3", true);
   }
 
-  // Add a separator row after the grid section
+  // Voeg een scheidingsrij toe na de grid sectie
   const separatorRow = document.createElement("tr");
   separatorRow.classList.add("separator-row");
   separatorRow.innerHTML = `
@@ -619,16 +618,16 @@ function buildMeasurementTable() {
       const evType = evTypes[i].value;
       const evName = `${translations[lang].charger} ${i + 1}: ${evType}`;
 
-      // For EV chargers, add rows based on network type
+      // Voor EV-laders, voeg rijen toe op basis van netwerktype
       if (netType === "1F") {
-        // Single-phase network - always add one row with L1
+        // Eenfasig netwerk - voeg altijd één rij toe met L1
         addRow(evName, "L1");
       } else if (netType === "split") {
-        // Split-phase network - always add two rows (L1 and L2)
+        // Split-phase netwerk - voeg altijd twee rijen toe (L1 en L2)
         addRow(evName, "L1");
         addRow(evName, "L2");
       } else if (netType === "3F-star" || netType === "3F-delta") {
-        // Three-phase network - always add three rows (L1, L2, L3)
+        // Driefasig netwerk - voeg altijd drie rijen toe (L1, L2, L3)
         addRow(evName, "L1");
         addRow(evName, "L2");
         addRow(evName, "L3");
@@ -656,22 +655,22 @@ function buildMeasurementTable() {
     }
   }
 
-  // Add event listeners to all input fields to update grid values
+  // Voeg event listeners toe aan alle invoervelden om grid waarden bij te werken
   document.querySelectorAll("#measTable tr:not(.separator-row)").forEach(row => {
-    if (row.cells[0].textContent !== gridName) { // Skip grid rows
+    if (row.cells[0].textContent !== gridName) { // Sla grid rijen over
       const amperageInput = row.querySelector(".I");
-      // Add event listener to each device amperage input
+      // Voeg event listener toe aan elke apparaat stroomsterkte invoer
       amperageInput.addEventListener("input", updateGridValues);
     }
   });
 
-  // After creating all rows, update grid values based on defaults
+  // Na het maken van alle rijen, werk grid waarden bij op basis van standaardwaarden
   updateGridValues();
 }
 
-// Move the updateGridValues function outside buildMeasurementTable to make it globally accessible
+// Verplaats de updateGridValues functie buiten buildMeasurementTable om het globaal toegankelijk te maken
 
-// Global helper to determine device type from name
+// Globale helper om apparaattype te bepalen uit naam
 function getDeviceType(name, lang) {
   if (name.includes(translations[lang].inverter) || name.toLowerCase().includes("inverter")) {
     return "solar";
@@ -684,24 +683,24 @@ function getDeviceType(name, lang) {
   }
 }
 
-// Global function to update grid values whenever a device input changes or phase is swapped
+// Globale functie om grid waarden bij te werken wanneer een apparaat invoer verandert of fase wordt gewisseld
 function updateGridValues() {
   const lang = window.currentLanguage || 'nl';
   const gridName = translations[lang].grid || "Grid";
 
-  // Reset tracking of amperages by phase and device type
+  // Reset volgen van stroomsterktes per fase en apparaattype
   const phaseAmperages = {
     L1: { solar: 0, load: 0, ev: 0 },
     L2: { solar: 0, load: 0, ev: 0 },
     L3: { solar: 0, load: 0, ev: 0 }
   };
 
-  // Collect all device amperages by phase and type
+  // Verzamel alle apparaat stroomsterktes per fase en type
   document.querySelectorAll("#measTable tr:not(.separator-row)").forEach(row => {
     const deviceName = row.cells[0].textContent;
-    if (deviceName !== gridName) {  // Skip grid rows
+    if (deviceName !== gridName) {  // Sla grid rijen over
       const phaseSelect = row.querySelector(".phase-select");
-      const phase = phaseSelect ? phaseSelect.value : "L1"; // Get selected phase
+      const phase = phaseSelect ? phaseSelect.value : "L1"; // Haal geselecteerde fase op
       const amperageInput = row.querySelector(".I");
       const amperage = parseFloat(amperageInput.value) || 0;
       const deviceType = getDeviceType(deviceName, lang);
@@ -712,7 +711,7 @@ function updateGridValues() {
     }
   });
 
-  // Find and update grid rows
+  // Zoek en werk grid rijen bij
   document.querySelectorAll("#measTable tr").forEach(row => {
     const deviceName = row.cells[0].textContent;
     if (deviceName === gridName) {
@@ -720,7 +719,7 @@ function updateGridValues() {
       const phase = phaseSelect ? phaseSelect.value : "L1";
 
       if (phaseAmperages[phase]) {
-        // Grid = EV + Load - Solar (negative means excess power going back to grid)
+        // Grid = EV + Load - Solar (negatief betekent overtollig vermogen dat teruggaat naar grid)
         const gridAmperage = phaseAmperages[phase].ev + phaseAmperages[phase].load - phaseAmperages[phase].solar;
         const gridInput = row.querySelector(".I");
         if (gridInput) {
@@ -740,10 +739,10 @@ document.getElementById("runChecks").onclick = () => {
   // Controleer op lege velden
   for (let tr of rows) {
     const IInput = tr.querySelector(".I");
-    const voltageCell = tr.querySelector("td:nth-child(5)"); // Voltage cell is at position 5
+    const voltageCell = tr.querySelector("td:nth-child(5)"); // Voltage cel is op positie 5
     const PInput = tr.querySelector(".P");
 
-    // Skip this row if it doesn't have the expected inputs
+    // Sla deze rij over als het niet de verwachte invoeren heeft
     if (!IInput || !voltageCell || !PInput) continue;
 
     const Istr = IInput.value;
@@ -757,7 +756,7 @@ document.getElementById("runChecks").onclick = () => {
   // Verzamel gegevens voor specifieke controles
   const rowData = rows
     .filter(tr => {
-      // Skip rows that don't have the required elements
+      // Sla rijen over die niet de vereiste elementen hebben
       return tr.querySelector(".I") &&
         tr.querySelector("td:nth-child(5)") &&
         tr.querySelector(".P");
@@ -765,23 +764,23 @@ document.getElementById("runChecks").onclick = () => {
     .map(tr => {
       const name = tr.querySelector("td:nth-child(1)").textContent;
       const phaseSelect = tr.querySelector(".phase-select");
-      const phase = phaseSelect ? phaseSelect.value : "L1"; // Get selected phase
+      const phase = phaseSelect ? phaseSelect.value : "L1"; // Haal geselecteerde fase op
       const I = parseFloat(tr.querySelector(".I").value);
       const U = parseFloat(getVoltageValue(tr.querySelector("td:nth-child(5)")));
       const P = parseFloat(tr.querySelector(".P").value);
       const S = Math.abs(U * I); // Schijnbaar vermogen is altijd positief
 
-      // Check if P > S (physically impossible)
+      // Controleer of P > S (fysiek onmogelijk)
       const isPowerInvalid = Math.abs(P) > S;
 
       let PF, Q;
 
       if (isPowerInvalid) {
-        // Set placeholders for invalid calculations
+        // Stel placeholders in voor ongeldige berekeningen
         PF = "!";
         Q = "!";
       } else {
-        // Normal calculation only if P <= S
+        // Normale berekening alleen als P <= S
         PF = S !== 0 ? Math.abs(P / S) : 0;
         Q = Math.sqrt(Math.max(0, S * S - P * P));
       }
@@ -792,7 +791,7 @@ document.getElementById("runChecks").onclick = () => {
       return { tr, name, phase, I, U, P, S, PF, Q, isNegativePF, isPowerInvalid };
     });
 
-  // Loop through each row and update with calculations or warnings
+  // Loop door elke rij en update bij met berekeningen of waarschuwingen
   rowData.forEach((data, index) => {
     // Voeg vertraging toe voor cascade-animatie-effect
     setTimeout(() => {
@@ -803,10 +802,10 @@ document.getElementById("runChecks").onclick = () => {
       const qCell = tr.querySelector(".Q");
       const alertCell = tr.querySelector(".alert");
 
-      // Display calculations
+      // Toon berekeningen
       sCell.textContent = S.toFixed(S_rounding);
 
-      // Display values or error indicator for PF and Q
+      // Toon waarden of foutindicator voor PF en Q
       pfCell.textContent = isPowerInvalid ? "!" : PF.toFixed(Pf_rounding);
       qCell.textContent = isPowerInvalid ? "!" : Q.toFixed(Q_rounding);
 
@@ -820,14 +819,14 @@ document.getElementById("runChecks").onclick = () => {
       // Wis bestaande waarschuwingen
       alertCell.textContent = "";
 
-      // 1. Check for physically impossible power values
+      // 1. Controleer op fysiek onmogelijke vermogenswaarden
       if (isPowerInvalid) {
         alertCell.textContent = translations[lang]?.impossible_power ||
           "Onmogelijke P > S: controleer metingen";
       }
       // Alleen andere waarschuwingen tonen als het vermogen fysiek mogelijk is
       else {
-        // 2. Controleer CT-richting (CT direction error) - Modified to check P instead of I
+        // 2. Controleer CT-richting (CT direction error) - Aangepast om P te controleren in plaats van I
         // Als vermogen negatief is maar powerfactor hoog (>0.9), wijst dit op onjuiste CT-richting
         if (P < 0 && PF > 0.9) {
           alertCell.textContent = translations[lang].ct_direction;
@@ -956,23 +955,23 @@ function updateConfigVisibility() {
   const measureTitle = document.querySelector("h1[data-i18n='measure_title']");
   const lang = window.currentLanguage || 'nl';
 
-  // Update the configuration title but don't show network type after the label
+  // Werk de configuratietitel bij maar toon geen netwerktype na het label
   if (netType) {
-    // Get the selected option's text content
+    // Haal de tekstinhoud van de geselecteerde optie op
     const selectedOption = document.querySelector(`#netType option[value="${netType}"]`);
     if (selectedOption) {
-      // Remove the display of selected network type after the label
+      // Verwijder de weergave van geselecteerd netwerktype na het label
       selectedNetTypeElement.textContent = "";
 
-      // Update the title to include the network type
+      // Werk de titel bij om het netwerktype toe te voegen
       if (measureTitle && translations[lang] && translations[lang].measure_title) {
         measureTitle.textContent = `${translations[lang].measure_title}: ${selectedOption.textContent}`;
       }
     }
   } else {
-    selectedNetTypeElement.textContent = ""; // Keep this empty
+    selectedNetTypeElement.textContent = ""; // Houd dit leeg
 
-    // Restore original title
+    // Herstel originele titel
     if (measureTitle && translations[lang] && translations[lang].measure_title) {
       measureTitle.textContent = translations[lang].measure_title;
     }
@@ -1015,40 +1014,40 @@ function updateConfigVisibility() {
   }
 }
 
-// Function to create the appropriate voltage field
+// Functie om het juiste spanningsveld te maken
 function createVoltageField(networkType, phase) {
-  // Determine the correct voltage based on network type
+  // Bepaal de juiste spanning op basis van netwerktype
   let voltage;
 
   if (networkType === 'split') {
-    // For split phase, always use 120V
+    // Voor split phase, gebruik altijd 120V
     voltage = '120';
   } else {
-    // Default for all other cases (1F and 3F configurations)
+    // Standaard voor alle andere gevallen (1F en 3F configuraties)
     voltage = '230';
   }
 
-  // Create a span with the fixed voltage value
+  // Maak een span met de vaste spanningswaarde
   const span = document.createElement('span');
   span.textContent = voltage + 'V';
   span.dataset.voltage = voltage;
   return span;
 }
 
-// Function to get the voltage value should also be simplified
+// Functie om de spanningswaarde te verkrijgen moet ook worden vereenvoudigd
 function getVoltageValue(cell) {
   const voltageElement = cell.firstChild;
   return voltageElement.dataset.voltage;
 }
 
-// Function to create phase dropdown selector
+// Functie om fase dropdown selector te maken
 function createPhaseSelector(currentPhase, networkType) {
   const select = document.createElement('select');
   select.className = 'phase-select';
-  select.dataset.originalPhase = currentPhase; // Store original phase for reference
-  select.dataset.currentPhase = currentPhase; // Also track current phase for swapping
+  select.dataset.originalPhase = currentPhase; // Bewaar originele fase voor referentie
+  select.dataset.currentPhase = currentPhase; // Volg ook huidige fase voor wisseling
 
-  // Add appropriate phases based on network type
+  // Voeg juiste fasen toe op basis van netwerktype
   let availablePhases = [];
 
   if (networkType === "1F") {
@@ -1069,7 +1068,7 @@ function createPhaseSelector(currentPhase, networkType) {
     select.appendChild(option);
   });
 
-  // Add change event listener to handle phase swaps
+  // Voeg change event listener toe om fasewisselingen af te handelen
   select.addEventListener('change', handlePhaseChange);
 
   return select;
@@ -1142,16 +1141,16 @@ if (document.getElementById("hasEV").value === "yes") {
     const evType = evTypes[i].value;
     const evName = `${translations[lang].charger} ${i + 1}: ${evType}`;
 
-    // For EV chargers, add rows based on network type
+    // Voor EV-laders, voeg rijen toe op basis van netwerktype
     if (netType === "1F") {
-      // Single-phase network - always add one row with L1
+      // Eenfasig netwerk - voeg altijd één rij toe met L1
       addRow(evName, "L1");
     } else if (netType === "split") {
-      // Split-phase network - always add two rows (L1 and L2)
+      // Split-phase netwerk - voeg altijd twee rijen toe (L1 en L2)
       addRow(evName, "L1");
       addRow(evName, "L2");
     } else if (netType === "3F-star" || netType === "3F-delta") {
-      // Three-phase network - always add three rows (L1, L2, L3)
+      // Driefasig netwerk - voeg altijd drie rijen toe (L1, L2, L3)
       addRow(evName, "L1");
       addRow(evName, "L2");
       addRow(evName, "L3");
@@ -1159,11 +1158,11 @@ if (document.getElementById("hasEV").value === "yes") {
   }
 }
 
-// Add after the translations initialization
+// Voeg toe na de vertalingen initialisatie
 
-// Default amperage values for devices by network type
+// Standaard stroomsterkte waarden voor apparaten per netwerktype
 const defaultDeviceAmperages = {
-  // For 1F and split-phase networks
+  // Voor 1F en split-phase netwerken
   singlePhase: {
     "Oven": 14,
     "Vaatwasser": 9,
@@ -1184,9 +1183,9 @@ const defaultDeviceAmperages = {
     "Waterpomp": 4,
     "Zonnewering": 2,
     "Zwembad": 15,
-    "Andere": null // No default value
+    "Andere": null // Geen standaardwaarde
   },
-  // For 3F networks
+  // Voor 3F netwerken
   threePhase: {
     "Laadstation": 16,
     "Jacuzzi": 3,
@@ -1197,47 +1196,47 @@ const defaultDeviceAmperages = {
     "Sauna": 9,
     "Warmtepomp": 7,
     "Zwembad": 8,
-    "Andere": null // No default value
+    "Andere": null // Geen standaardwaarde
   },
-  // EV chargers
+  // EV laders
   evChargers: {
     "EV Base": 16,
     "EV One": 16,
     "EV Ultra": 16,
     "EV Wall": 16
   },
-  // Solar inverters
+  // Zonnepaneel omvormers
   inverters: {
     "Omvormer": 6.73
   }
 };
 
-// Helper function to get default amperage for a device
+// Hulpfunctie om standaard stroomsterkte voor een apparaat te krijgen
 function getDefaultAmperage(deviceName, netType) {
   const lang = window.currentLanguage || 'nl';
 
-  // Handle solar inverters - Nu positief
+  // Behandel zonnepaneel omvormers - Nu positief
   if (deviceName.includes(translations[lang].inverter) || deviceName.toLowerCase().includes("inverter")) {
     return 6.73; // Positief, zal in berekeningen als opbrengst worden beschouwd
   }
 
-  // Handle EV chargers
+  // Behandel EV-laders
   if (deviceName.includes("EV ")) {
-    const evModel = deviceName.split(": ")[1]; // Extract model name after colon
+    const evModel = deviceName.split(": ")[1]; // Haal modelnaam op na dubbele punt
     return defaultDeviceAmperages.evChargers[evModel] || null;
   }
 
-  // Handle regular devices
+  // Behandel reguliere apparaten
   const deviceType = netType === "1F" || netType === "split" ? "singlePhase" : "threePhase";
 
-  // Try to find the device in the default list
+  // Probeer het apparaat te vinden in de standaardlijst
   for (const [defaultName, amperage] of Object.entries(defaultDeviceAmperages[deviceType])) {
-    // Check for exact match first
+    // Controleer eerst op exacte match
     if (deviceName === defaultName) {
       return amperage;
     }
 
-    // For translated device names, try to find a match in the current language
+    // Voor vertaalde apparaatnamen, probeer een match te vinden in de huidige taal
     for (const translatedName of translations[lang].consumer_types) {
       if (deviceName === translatedName &&
         translations.nl.consumer_types.indexOf(defaultName) === translations[lang].consumer_types.indexOf(translatedName)) {
@@ -1246,5 +1245,5 @@ function getDefaultAmperage(deviceName, netType) {
     }
   }
 
-  return null; // No default found
+  return null; // Geen standaard gevonden
 }
