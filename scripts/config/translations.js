@@ -61,10 +61,10 @@ export const translations = {
     "fill_all": "Vul ALLE meetvelden in.",
     
     // Errors
-    "ct_direction": "CT-richting fout",
+    "ct_direction": "Foute klemrichting",
     "check_ct": "Controleer CT-klem",
-    "wrong_phase_assignment": "Foute fasetoewijzing",
-    "wrong_clamp_direction": "Foute klemrichting",
+    "wrong_phase_assignment": "Foutieve fasetoewijzing",
+    "wrong_clamp_direction": "Foutieve klemrichting",
     "solar_grid_less_than_ev": "De som van grid en solar is kleiner dan het verbruik van de laadpaal",
     "impossible_power": "Onmogelijke P > S: controleer metingen",
     "negative_pf": "Negatieve powerfactor",
@@ -124,7 +124,7 @@ export const translations = {
     "fill_all": "Please fill in ALL measurement fields.",
     
     // Error messages
-    "ct_direction": "CT direction error",
+    "ct_direction": "Wrong clamp direction",
     "check_ct": "Check CT clamp",
     "wrong_phase_assignment": "Wrong phase assignment",
     "wrong_clamp_direction": "Wrong clamp direction",
@@ -187,7 +187,7 @@ export const translations = {
     "fill_all": "Veuillez remplir TOUS les champs de mesure.",
     
     // Erreurs
-    "ct_direction": "Erreur de direction CT",
+    "ct_direction": "Vérifiez la direction de la pince",
     "check_ct": "Vérifiez la pince CT",
     "wrong_phase_assignment": "Attribution de phase incorrecte",
     "wrong_clamp_direction": "Direction de pince incorrecte",

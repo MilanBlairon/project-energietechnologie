@@ -889,19 +889,46 @@ document.getElementById("runChecks").onclick = () => {
           alertCell.textContent = translations[lang].negative_pf;
         }
         // 7. Controleer per fase of solar + grid < laadpaal (EV)
-        // Dit geeft aan dat er niet genoeg vermogen is voor de EV-lader
-        ['L1', 'L2', 'L3'].forEach(phase => {
-          if (evPowerByPhase[phase] > 0 &&
-            (solarPowerByPhase[phase] + powerByPhase[phase] < evPowerByPhase[phase])) {
+        // Verzamel eerst alle vermogenswaarden per fase en per type
+        const powerByPhase = { L1: 0, L2: 0, L3: 0 };
+        const solarPowerByPhase = { L1: 0, L2: 0, L3: 0 };
+        const evPowerByPhase = { L1: 0, L2: 0, L3: 0 };
+        const gridPowerByPhase = { L1: 0, L2: 0, L3: 0 };
 
-            // Zoek de EV-rijen voor deze fase om waarschuwingen toe te voegen
-            rowData.forEach(data => {
-              const { tr, name, phase: dataPhase } = data;
-              if (dataPhase === phase && getDeviceType(name, lang) === "ev") {
-                const alertCell = tr.querySelector(".alert");
-                alertCell.textContent = translations[lang].solar_grid_less_than_ev;
-              }
-            });
+        rowData.forEach(data => {
+          const { name, phase, P } = data;
+          const deviceType = getDeviceType(name, lang);
+
+          // Verzamel vermogen per apparaattype en per fase
+          if (deviceType === "solar") {
+            solarPowerByPhase[phase] += P;
+          } else if (deviceType === "ev") {
+            evPowerByPhase[phase] += P;
+          } else if (deviceType === "grid") {
+            gridPowerByPhase[phase] += P;
+          } else if (deviceType === "load") {
+            powerByPhase[phase] += P;
+          }
+        });
+
+        // Controleer per fase of er genoeg vermogen is voor EV-laders
+        ['L1', 'L2', 'L3'].forEach(phase => {
+          // Alleen controleren als er een EV-lader op deze fase zit
+          if (evPowerByPhase[phase] > 0) {
+            // Beschikbaar vermogen = grid + solar
+            const availablePower = gridPowerByPhase[phase] + solarPowerByPhase[phase];
+            
+            // Als het beschikbare vermogen minder is dan wat de EV-lader nodig heeft
+            if (availablePower < evPowerByPhase[phase]) {
+              // Voeg waarschuwing toe aan alle EV-rijen voor deze fase
+              rowData.forEach(data => {
+                const { tr, name, phase: dataPhase } = data;
+                if (dataPhase === phase && getDeviceType(name, lang) === "ev") {
+                  const alertCell = tr.querySelector(".alert");
+                  alertCell.textContent = translations[lang].solar_grid_less_than_ev;
+                }
+              });
+            }
           }
         });
       }

@@ -20,7 +20,7 @@
  */
 
 // Afrondingsconstanten
-export const Pf_rounding = 5;   // Aantal decimalen voor PF
+export const Pf_rounding = 2;   // Aantal decimalen voor PF
 export const Q_rounding = 0;    // Aantal decimalen voor Q
 export const S_rounding = 0;    // Aantal decimalen voor S
 export const P_rounding = 0;    // Aantal decimalen voor P
