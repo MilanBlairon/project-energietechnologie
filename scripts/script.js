@@ -871,7 +871,7 @@ document.getElementById("runChecks").onclick = () => {
         }
         // 3. Controleer foutieve fasetoewijzing
         // Gecombineerde controle voor foutieve fasetoewijzing
-        else if ((I < 0 && PF < 0.7) || (PF < 0.7 && I > 2)) {
+        else if ((I < 0 && PF < 0.7) || (PF < 0.7 && I >= 2)) {
           alertCell.textContent = translations[lang].wrong_phase_assignment;
         }
         // 4. Controleer CT-klem (Check CT clamp)

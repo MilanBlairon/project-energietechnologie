@@ -61,7 +61,7 @@ export const translations = {
     "fill_all": "Vul ALLE meetvelden in.",
     
     // Errors
-    "ct_direction": "Foute klemrichting",
+    "ct_direction": "Foutieve klemrichting",
     "check_ct": "Controleer CT-klem",
     "wrong_phase_assignment": "Foutieve fasetoewijzing",
     "wrong_clamp_direction": "Foutieve klemrichting",
