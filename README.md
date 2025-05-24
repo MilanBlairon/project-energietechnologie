@@ -50,7 +50,7 @@ Als PWA kan SmappeeSim direct worden geïnstalleerd vanuit de browser:
 ## Ontwikkeld door
 
 De volledige applicatie is ontworpen en ontwikkeld door Milan Blairon.  
-Optionele opdracht voor het vak **Webdevelopment 2** (lector **R. Reinenbergh**)  
+Optionele opdracht voor het vak **Webdevelopment 2** (lector **J. Reinenbergh**)  
 richting **Bachelor Elektronica-ICT** aan **VIVES Hogeschool Kortrijk**.  
 In samenwerking met twee studenten **Energietechnologie** die hun bachelorproef uitvoeren bij **Smappee**.
 
